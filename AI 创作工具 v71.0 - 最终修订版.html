@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<!-- saved from url=(0386)file:///Users/baomao/Desktop/%E6%B8%B8%E6%88%8FAI%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7/%E5%89%A7%E6%9C%ACAI%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7%20%EF%BC%88%E6%B0%9B%E5%9B%B4npc&%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%EF%BC%89%E6%9C%80%E7%BB%88%E7%89%88%E6%9C%AC_files/AI%20%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7%20v74%20-%20%E7%BB%88%E6%9E%81%E4%BF%AE%E6%AD%A3%E7%89%88.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 创作工具 v71.0 - 最终修订版</title>
+    <script src="./AI 创作工具 v71.0 - 最终修订版_files/saved_resource"></script>
+    <script src="./AI 创作工具 v71.0 - 最终修订版_files/lucide@latest"></script>
+    <link href="./AI 创作工具 v71.0 - 最终修订版_files/css2" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#FFFFFF', sidebar: '#FAFAFA', primary: '#10B981', 'primary-hover': '#059669',
+                        text: '#1F2937', sub: '#9CA3AF', border: '#E5E7EB',
+                        'prompt-bg': '#F9FAFB', 'green-light': '#ECFDF5', 
+                        'tag-bg': '#D1FAE5', 'tag-border': '#6EE7B7', 'tag-text': '#064E3B',
+                        'ai-btn': '#1E1B4B', 'purple-btn': '#7C3AED'
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', "PingFang SC", "Segoe UI", 'sans-serif'],
+                        script: ['"Noto Serif SC"', '"Songti SC"', 'serif'],
+                    },
+                    boxShadow: { 'card': '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        
+        .fixed-header-section { background: white; border-bottom: 1px solid #F3F4F6; padding: 16px 32px; z-index: 40; }
+        .editor-container { border: 1px solid #E5E7EB; border-radius: 8px; background: white; overflow: hidden; margin-bottom: 24px; }
+        .editor-header { background: #F9FAFB; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F3F4F6; }
+        .prompt-area { background: #FFFFFF; padding: 20px; border-bottom: 1px dashed #E5E7EB; }
+        .prompt-input { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 16px; font-size: 14px; line-height: 2.2; color: #374151; outline: none; min-height: 80px; }
+        .prompt-input:focus { border-color: #10B981; background-color: #FFFFFF; }
+        .output-area-wrapper { padding: 20px; background: #FFFFFF; }
+        .script-editor-box { width: 100%; min-height: 200px; outline: none; line-height: 1.8; color: #374151; font-size: 14px; border: 2px solid #10B981; border-radius: 6px; padding: 16px; background: white; transition: all 0.2s; text-align: center; white-space: pre-wrap; }
+        .script-editor-box:focus { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .variant-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 16px; }
+        .variant-card { border: 2px dashed #10B981; background: #F0FDF4; border-radius: 8px; padding: 12px; position: relative; transition: all 0.2s; }
+        .variant-card:hover { background: #DCFCE7; }
+        .variant-content { font-size: 12px; color: #064E3B; margin-bottom: 30px; white-space: pre-wrap; max-height: 150px; overflow-y: auto; text-align: center; }
+        .variant-btn { position: absolute; bottom: 8px; right: 8px; background: #059669; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .prompt-tag { display: inline-flex; align-items: center; background-color: #D1FAE5; color: #064E3B; padding: 0 8px; border-radius: 4px; border: 1px solid #6EE7B7; font-size: 13px; cursor: pointer; margin: 0 4px; vertical-align: middle; }
+        .template-block { user-select: none; display: inline; }
+        .sidebar-item { padding: 10px 16px; font-size: 13px; color: #6B7280; cursor: pointer; border-left: 3px solid transparent; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-item:hover { background-color: #F3F4F6; color: #10B981; }
+        .sidebar-item.active { background-color: #ECFDF5; color: #10B981; border-left-color: #10B981; font-weight: 600; }
+        .pipeline-tab { padding: 6px 24px; font-size: 12px; font-weight: bold; color: #9CA3AF; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+        .pipeline-tab:hover { color: #374151; }
+        .pipeline-tab.active { background-color: #ECFDF5; color: #10B981; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .story-input-title { font-size: 18px; font-weight: bold; border: none; width: 100%; padding: 12px 0; border-bottom: 1px solid #E5E7EB; outline: none; margin-bottom: 16px; color: #111827; }
+        .story-input-body { width: 100%; min-height: 300px; outline: none; line-height: 1.8; color: #4B5563; font-size: 14px; resize: none; border: none; padding: 0; }
+        .outline-card { transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 20px; background: white; }
+        .outline-header { background: #ECFDF5; padding: 10px 16px; border-bottom: 1px solid #E5E7EB; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: space-between; cursor: grab; }
+        .outline-title-input { background: transparent; border: none; font-weight: bold; font-size: 13px; color: #064E3B; width: 300px; outline: none; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal-content { background: white; padding: 24px; border-radius: 12px; width: 340px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .tag-dropdown { position: absolute; background: white; border: 1px solid #E5E7EB; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 6px; z-index: 9999; max-height: 240px; overflow-y: auto; min-width: 140px; display: none; }
+        .tag-option { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #374151; }
+        .tag-option:hover { background-color: #F3F4F6; color: #10B981; }
+        .highlight-popover { position: absolute; background: #1F2937; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; display: none; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .highlight-popover::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #1F2937 transparent transparent transparent; }
+        .rewrite-modal { position: absolute; background: white; border: 1px solid #E5E7EB; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1001; width: 300px; padding: 12px; display: none; }
+        .rewrite-input { width: 100%; border: 1px solid #E5E7EB; border-radius: 4px; padding: 8px; font-size: 13px; margin-bottom: 8px; outline: none; }
+        .rewrite-input:focus { border-color: #10B981; }
+        .long-script-prompt-layout { display: flex; flex-direction: column; gap: 8px; }
+        .ls-outline { color: #6B7280; font-size: 13px; border-bottom: 1px solid #F3F4F6; padding-bottom: 8px; margin-bottom: 4px; }
+        
+        /* Table Styles (Excel-like) */
+        .table-view-container { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #E5E7EB; }
+        .table-view-container th { background: #F9FAFB; border-bottom: 2px solid #E5E7EB; border-right: 1px solid #E5E7EB; padding: 12px; text-align: left; font-weight: bold; color: #374151; position: sticky; top: 0; z-index: 10; }
+        .table-view-container td { border-bottom: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB; padding: 12px; vertical-align: middle; color: #4B5563; background: white; }
+        .table-view-container tr:hover td { background: #F9FAFB; }
+        .tag-badge { display: inline-block; background: #ECFDF5; color: #064E3B; border: 1px solid #A7F3D0; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px; margin-bottom: 4px; }
+        
+        /* AI Inspiration Assistant */
+        .ai-assistant-panel {
+            position: fixed; right: 0; top: 56px; bottom: 0; width: 320px; background: white; border-left: 1px solid #E5E7EB;
+            transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 50;
+            box-shadow: -4px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column;
+        }
+        .ai-assistant-panel.open { transform: translateX(0); }
+        .ai-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .ai-footer { padding: 16px; border-top: 1px solid #E5E7EB; background: #F9FAFB; }
+        
+        /* Layout Transition */
+        #main-view-container { transition: margin-right 0.3s ease-in-out; }
+        .mr-panel { margin-right: 320px; }
+        
+        /* Toast提示样式 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #374151;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:-apple-system, BlinkMacSystemFont, PingFang SC, Segoe UI, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.bottom-1{bottom:0.25rem}.right-1{right:0.25rem}.right-2\.5{right:0.625rem}.top-1{top:0.25rem}.top-1\/2{top:50%}.z-10{z-index:10}.z-20{z-index:20}.z-30{z-index:30}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-8{margin-top:2rem}.mb-3{margin-bottom:0.75rem}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-3{height:0.75rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-full{height:100%}.h-screen{height:100vh}.h-3\.5{height:0.875rem}.min-h-\[500px\]{min-height:500px}.w-12{width:3rem}.w-24{width:6rem}.w-3{width:0.75rem}.w-4{width:1rem}.w-48{width:12rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-64{width:16rem}.w-8{width:2rem}.w-\[1px\]{width:1px}.w-full{width:100%}.w-1\/2{width:50%}.w-3\.5{width:0.875rem}.min-w-\[180px\]{min-width:180px}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-border{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.bg-bg{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.bg-green-600{--tw-bg-opacity:1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.bg-primary{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-purple-btn{--tw-bg-opacity:1;background-color:rgb(124 58 237 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-sidebar{--tw-bg-opacity:1;background-color:rgb(250 250 250 / var(--tw-bg-opacity, 1))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-yellow-100{--tw-bg-opacity:1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.bg-ai-btn{--tw-bg-opacity:1;background-color:rgb(30 27 75 / var(--tw-bg-opacity, 1))}.p-0\.5{padding:0.125rem}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-4{padding:1rem}.p-8{padding:2rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.pb-20{padding-bottom:5rem}.pb-4{padding-bottom:1rem}.pb-6{padding-bottom:1.5rem}.pl-3{padding-left:0.75rem}.pr-10{padding-right:2.5rem}.pr-8{padding-right:2rem}.text-center{text-align:center}.font-sans{font-family:-apple-system, BlinkMacSystemFont, PingFang SC, Segoe UI, sans-serif}.text-\[10px\]{font-size:10px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-primary{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.text-text{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-600{--tw-text-opacity:1;color:rgb(202 138 4 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-card{--tw-shadow:0 1px 2px 0 rgba(0, 0, 0, 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:border-primary:hover{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.hover\:bg-gray-50:hover{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-700:hover{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity, 1))}.hover\:bg-green-50:hover{--tw-bg-opacity:1;background-color:rgb(240 253 244 / var(--tw-bg-opacity, 1))}.hover\:bg-green-700:hover{--tw-bg-opacity:1;background-color:rgb(21 128 61 / var(--tw-bg-opacity, 1))}.hover\:bg-primary-hover:hover{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-50:hover{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-700:hover{--tw-bg-opacity:1;background-color:rgb(126 34 206 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-800:hover{--tw-bg-opacity:1;background-color:rgb(107 33 168 / var(--tw-bg-opacity, 1))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-900:hover{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.hover\:text-gray-600:hover{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.hover\:text-gray-800:hover{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.hover\:text-primary:hover{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.hover\:text-purple-600:hover{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.focus\:border-primary:focus{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.focus\:border-purple-500:focus{--tw-border-opacity:1;border-color:rgb(168 85 247 / var(--tw-border-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}</style></head>
+<body class="bg-bg text-text h-screen w-full flex overflow-hidden antialiased font-sans" onclick="handleGlobalClick(event)" onmouseup="handleTextSelection(event)">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-sidebar border-r border-border flex flex-col flex-shrink-0 z-20">
+        <div class="h-14 flex items-center px-4 border-b border-border gap-2 bg-white">
+            <div class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden border border-gray-200"><img src="./AI 创作工具 v71.0 - 最终修订版_files/avatar.svg" alt="User"></div>
+            <span class="font-bold text-xs text-gray-700">wenjing03</span>
+        </div>
+        <div class="px-4 py-3 border-b border-border bg-white">
+            <h2 id="sidebar-title" class="text-sm font-bold text-gray-800">台本列表</h2>
+        </div>
+        <div id="sidebar-list" class="flex-1 overflow-y-auto custom-scrollbar pb-4 bg-sidebar"><div class="sidebar-item active" id="sidebar-link-block-1772508189306-rdsps">XINQI_打电话_默认_0001</div></div>
+    </aside>
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative bg-white">
+        <!-- TOOLBAR -->
+        <header class="h-14 bg-white border-b border-border flex items-center justify-between px-4 flex-shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <button class="text-gray-500 hover:text-gray-800 flex items-center gap-1 text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-left" aria-hidden="true" class="lucide lucide-chevron-left w-4 h-4"><path d="m15 18-6-6 6-6"></path></svg> 返回</button>
+                <div class="h-4 w-[1px] bg-gray-200"></div>
+                <div class="flex items-center gap-2 px-2 py-1.5 border border-gray-200 rounded text-xs text-gray-700 bg-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="box" aria-hidden="true" class="lucide lucide-box w-3 h-3 text-primary"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg> GPT-4o</div>
+                <button class="flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded text-xs text-green-600 bg-white hover:bg-green-50"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="cloud" aria-hidden="true" class="lucide lucide-cloud w-3 h-3"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg> 备份&amp;恢复</button>
+                <button class="px-3 py-1.5 bg-gray-800 text-white rounded text-xs hover:bg-gray-700 shadow-sm">保存</button>
+                <span class="text-[10px] text-gray-400">已保存</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-global-ai" onclick="globalGenerate()" class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-btn text-white rounded text-xs font-bold hover:bg-purple-800 shadow-sm transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3 h-3"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg> AI整体生成
+                </button>
+                <div id="view-mode-group" class="flex bg-gray-100 p-0.5 rounded text-[10px] font-medium text-gray-500">
+                    <button onclick="switchViewMode(&#39;editor&#39;)" id="btn-mode-editor" class="px-3 py-1 bg-white rounded shadow-sm text-gray-800 transition-all">编辑模式</button>
+                    <button onclick="switchViewMode(&#39;final&#39;)" id="btn-mode-final" class="px-3 py-1 hover:text-gray-700 transition-all">成稿模式</button>
+                </div>
+                <!-- AI Assistant Toggle in Header -->
+                <button id="ai-assistant-toggle-btn" onclick="toggleAssistant()" class="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors" title="AI 灵感助手">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="panel-right-open" aria-hidden="true" class="lucide lucide-panel-right-open w-5 h-5"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M15 3v18"></path><path d="m10 15-3-3 3-3"></path></svg>
+                </button>
+            </div>
+        </header>
+        <!-- CONTAINER -->
+        <div id="main-view-container" class="flex-1 flex flex-col overflow-hidden h-full">
+            
+            <!-- FIXED HEADER -->
+            <div class="fixed-header-section flex items-center gap-4 shadow-sm z-30">
+                <h2 class="text-xl font-bold text-gray-800">台本创作模版</h2>
+                <div class="relative group inline-block">
+                    <!-- Added onfocus to save current val for cancel logic -->
+                    <select id="global-template-selector" onfocus="this.dataset.prev = this.value" onchange="checkAndSwitchTemplate(this)" class="appearance-none text-xs border border-gray-300 rounded px-4 py-2 pr-8 bg-white text-gray-700 font-bold outline-none focus:border-primary cursor-pointer hover:bg-gray-50 shadow-sm min-w-[180px]">
+                        <option value="double_phone">双人打电话</option>
+                        <option value="double_static">双人静态语音表演</option>
+                        <option value="single_random">单人随机语句</option>
+                        <option value="single_static">单人静态语音表演</option>
+                        <option value="multi_static">多人静态语音表演</option>
+                        <option value="trigger">定点触发响应</option>
+                        <option value="long_script">长剧本创作</option>
+                        <option value="custom">自定义创作</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down w-4 h-4 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"><path d="m6 9 6 6 6-6"></path></svg>
+                </div>
+                <!-- Actions -->
+                <div class="ml-auto flex gap-2" id="header-actions">
+                    <button onclick="openSettings()" id="btn-settings-global" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">台本设定</button>
+                    <button onclick="addNewBlock()" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">+ 添加段落</button>
+                </div>
+            </div>
+            <!-- EDITOR MODE CONTENT -->
+            <main id="view-editor" class="flex-1 overflow-y-auto custom-scrollbar p-8">
+                <!-- VIEW 1: NORMAL FLOW -->
+                <div id="flow-canvas" class="max-w-6xl mx-auto pb-20 block"><div id="block-1772508189306-rdsps-wrapper"><div class="flex justify-between items-center mb-3 px-1"><input type="text" value="XINQI_打电话_默认_0001" oninput="updateSidebar(&#39;block-1772508189306-rdsps&#39;, this.value)" class="text-sm font-bold text-gray-800 bg-transparent outline-none border-b border-transparent focus:border-primary w-1/2 transition-colors py-1"></div><div id="block-1772508189306-rdsps" class="editor-container shadow-card" onclick="highlightSidebar(&#39;block-1772508189306-rdsps&#39;)"><div class="editor-header"><span class="text-xs font-bold text-gray-600 flex items-center gap-1">台本 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" class="lucide lucide-chevron-up w-3.5 h-3.5 text-gray-400"><path d="m18 15-6-6-6 6"></path></svg></span><div class="flex gap-3 items-center"><span class="w-8 h-8"></span><button onclick="generateBlockAI(&#39;block-1772508189306-rdsps&#39;)" class="bg-ai-btn text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-900 shadow-sm transition-all transform active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-4 h-4 text-yellow-300"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></button></div></div><div class="prompt-area"><div class="prompt-input" contenteditable="true">请生成一段<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;城市&#39;, this)">城市 &gt;</span>的<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;舞台区域&#39;, this)">舞台区域 &gt;</span>的情节下；<br><span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;角色A&#39;, this)">角色A &gt;</span><span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;情绪语气&#39;, this)">情绪语气 &gt;</span>和<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;角色B&#39;, this)">角色B &gt;</span><span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;情绪语气&#39;, this)">情绪语气 &gt;</span>聊<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;对话话题&#39;, this)">对话话题 &gt;</span><span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;对话风格&#39;, this)">对话风格 &gt;</span><span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;几组对话&#39;, this)">几组对话 &gt;</span>的台本</div></div><div class="output-area-wrapper"><div id="output-block-1772508189306-rdsps" class="script-editor-box" contenteditable="true"></div></div></div></div></div>
+                <!-- VIEW 2: LONG SCRIPT PIPELINE -->
+                <div id="pipeline-canvas" class="hidden">
+                    <div class="w-full flex justify-center pb-6">
+                        <div class="flex bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+                            <div onclick="switchPipelineTab(&#39;story&#39;)" id="tab-story" class="pipeline-tab active">故事梗概</div>
+                            <div onclick="switchPipelineTab(&#39;outline&#39;)" id="tab-outline" class="pipeline-tab">大纲创作</div>
+                            <div onclick="switchPipelineTab(&#39;script&#39;)" id="tab-script" class="pipeline-tab">台本创作</div>
+                        </div>
+                    </div>
+                    <div id="stage-story" class="max-w-5xl mx-auto">
+                         <div class="flex justify-between items-start mb-6">
+                            <h2 class="story-header-text">hey，今天想写什么故事？</h2>
+                            <div class="flex gap-3"><button onclick="openDramaSettings()" class="px-4 py-2 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">剧本设定</button><button onclick="switchPipelineTab(&#39;outline&#39;)" class="px-4 py-2 bg-primary text-white rounded text-xs hover:bg-primary-hover shadow-sm font-bold">下一步</button></div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 min-h-[500px]">
+                            <input type="text" id="story-title" class="story-input-title" placeholder="请输入故事标题" value="雨夜的访客">
+                            <textarea id="story-body" class="story-input-body" placeholder="请输入故事梗概内容...">在一个风雨交加的夜晚...</textarea>
+                        </div>
+                    </div>
+                    <div id="stage-outline" class="hidden max-w-5xl mx-auto">
+                        <div class="flex justify-end mb-4 gap-2">
+                             <button onclick="addOutlineBlock()" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white">+ 添加大纲</button>
+                             <button onclick="outlineToScript()" class="px-3 py-1.5 bg-primary text-white rounded text-xs font-bold">确认大纲，去写台本</button>
+                        </div>
+                        <div id="outline-list-container"></div>
+                    </div>
+                    <div id="stage-script" class="hidden max-w-6xl mx-auto"><div id="long-script-container"></div></div>
+                </div>
+            </main>
+            <!-- FINAL DRAFT MODE (EXCEL STYLE) -->
+            <main id="view-final" class="flex-1 overflow-y-auto custom-scrollbar p-8 hidden bg-gray-50">
+                <div class="max-w-7xl mx-auto pb-20">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                            <div><h2 class="text-lg font-bold text-gray-800">成稿预览</h2><p class="text-xs text-gray-500 mt-1">仅展示已确认或已生成的台本内容</p></div>
+                            <button onclick="alert(&#39;Excel 导出成功&#39;)" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download w-4 h-4"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> 导出 Excel</button>
+                        </div>
+                        <div class="overflow-x-auto p-4">
+                            <table class="table-view-container" id="final-table">
+                                <thead><tr><th class="w-48">台本ID</th><th class="w-24">角色</th><th>完整台本内容</th><th class="w-64">已选的prompt模版 (Prompt设定)</th></tr></thead>
+                                <tbody id="final-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- AI ASSISTANT PANEL -->
+    <div id="ai-assistant-panel" class="ai-assistant-panel">
+        <div class="ai-content custom-scrollbar">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bot" aria-hidden="true" class="lucide lucide-bot w-5 h-5 text-purple-600"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg> AI 灵感助手</h3>
+            <div class="text-sm text-gray-500 p-4 bg-gray-50 rounded-lg">你好！我是你的灵感助手，有什么可以帮你的吗？<br><br>你可以问我关于剧情走向、角色设定或者台词优化的建议。</div>
+        </div>
+        <div class="ai-footer">
+            <div class="relative">
+                <input type="text" placeholder="输入你的问题..." class="w-full border border-gray-200 rounded-md py-2 pl-3 pr-10 text-xs outline-none focus:border-purple-500">
+                <button class="absolute right-1 top-1 bottom-1 px-2 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" aria-hidden="true" class="lucide lucide-send w-3 h-3"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg></button>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL: SWITCH CONFIRM (CUSTOM) -->
+    <div id="modal-switch-confirm" class="modal-overlay" style="display:none;">
+        <div class="modal-content text-center">
+            <div class="mx-auto w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" aria-hidden="true" class="lucide lucide-alert-triangle w-6 h-6 text-yellow-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">切换模版确认</h3>
+            <p class="text-sm text-gray-500 mb-6">切换后，当前创作内容将不会保持，是否确认切换？</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="cancelSwitch()" class="px-4 py-2 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50 font-medium w-24">取消</button>
+                <button onclick="confirmSwitch()" class="px-4 py-2 bg-red-600 text-white rounded text-xs hover:bg-red-700 font-medium w-24">确认</button>
+            </div>
+        </div>
+    </div>
+    <!-- FLOATING ELEMENTS & MODALS (Keep existing) -->
+    <div id="dropdown-container" class="tag-dropdown" style="display: none;"></div>
+    <div id="highlight-popover" class="highlight-popover" onmousedown="showRewriteModal(event)" style="display: none;">AI 改写 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3 h-3 inline"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></div>
+    <div id="rewrite-modal" class="rewrite-modal"><textarea id="rewrite-input" class="rewrite-input" rows="2" placeholder="输入改写指令..."></textarea><div class="flex justify-end gap-2"><button onclick="closeRewriteModal()" class="px-2 py-1 text-xs text-gray-500 border border-gray-200 rounded">取消</button><button onclick="confirmRewrite()" class="px-2 py-1 text-xs text-white bg-primary rounded">确认</button></div></div>
+    <div id="modal-settings" class="modal-overlay" style="display:none;"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h3 class="text-sm font-bold text-gray-800">台本生成设定</h3><button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-4 h-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div><div class="space-y-5"><div><label class="block text-xs font-bold text-gray-500 mb-2">每轮对话句数</label><div class="flex items-center border border-gray-200 rounded-md px-3 py-2 bg-gray-50"><input type="number" id="setting-lines" value="4" class="w-full bg-transparent text-sm outline-none text-gray-800"></div></div></div><div class="mt-8 flex justify-end gap-3"><button onclick="closeSettings()" class="px-4 py-2 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50 font-medium">取消</button><button onclick="confirmSettings()" class="px-4 py-2 bg-gray-900 text-white rounded text-xs hover:bg-gray-700 font-medium">确认</button></div></div></div>
+    <div id="modal-drama-settings" class="modal-overlay" style="display:none;"><div class="modal-content" style="width: 400px;"><div class="flex justify-between items-center mb-6"><h3 class="text-sm font-bold text-gray-800">剧本设定</h3><button onclick="closeDramaSettings()" class="text-gray-400 hover:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-4 h-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-bold text-gray-500 mb-2">剧本类型</label><select class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs"><option>悬疑</option><option>喜剧</option></select></div><div><label class="block text-xs font-bold text-gray-500 mb-2">剧本时长</label><select class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs"><option>10分钟</option><option>30分钟</option></select></div></div><div><label class="block text-xs font-bold text-gray-500 mb-2">剧本主角</label><input type="text" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs" value="塔菲"></div><div><label class="block text-xs font-bold text-gray-500 mb-2">对立角色</label><input type="text" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs" value="神秘人"></div></div><div class="mt-8 flex justify-end gap-3"><button onclick="closeDramaSettings()" class="px-4 py-2 bg-gray-900 text-white rounded text-xs hover:bg-gray-700 font-medium">保存设定</button></div></div></div>
+    <script>
+        lucide.createIcons();
+        let blockCount = 1; let outlineBlockCount = 0; let currentMode = 'normal';
+        let selectedRange = null;
+        let pendingTemplateValue = null; 
+        const dataDict = {
+            '城市': ['XinQi', 'ChongXiao'], '舞台区域': ['东亚市中心', '金融商务中心'],
+            '角色A': ['NPC_01', 'NPC_02'], '角色B': ['NPC_03', 'NPC_04'],
+            '情绪语气': ['随机', '平和', '欢快'], '对话话题': ['随机', '工作'],
+            '对话风格': ['随机', '轻松幽默'], '几组对话': ['3组', '5组', '10组'],
+            '角色': ['塔菲', 'TIM'], '场景': ['花园', '学校']
+        };
+        const sceneMap = {
+            'double_phone': '打电话', 'double_static': '双人语音', 'single_random': '随机语句',
+            'single_static': '单人语音', 'multi_static': '多人语音', 'trigger': '触发响应',
+            'long_script': '长剧本', 'custom': '自定义'
+        };
+        
+        // Toast提示功能
+        function showToast(message) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 300); // 0.3s时长
+        }
+        
+        function showToastHandler(e) {
+            e.preventDefault();
+            showToast('该功能仅在编辑模式中使用');
+        }
+        
+        window.onload = function() { addNewBlock(true); };
+        // --- TEMPLATE SWITCHING ---
+        function checkAndSwitchTemplate(select) {
+            const hasContent = checkForContent();
+            if (hasContent) {
+                pendingTemplateValue = select.value;
+                select.value = select.dataset.prev; 
+                document.getElementById('modal-switch-confirm').style.display = 'flex';
+            } else {
+                handleTemplateChange(select.value);
+                select.dataset.prev = select.value;
+            }
+        }
+        
+        function confirmSwitch() {
+            document.getElementById('modal-switch-confirm').style.display = 'none';
+            const select = document.getElementById('global-template-selector');
+            select.value = pendingTemplateValue;
+            handleTemplateChange(pendingTemplateValue);
+            select.dataset.prev = pendingTemplateValue;
+        }
+        
+        function cancelSwitch() {
+            document.getElementById('modal-switch-confirm').style.display = 'none';
+            pendingTemplateValue = null;
+        }
+        function checkForContent() {
+            const active = currentMode === 'long_script' ? 'long-script-container' : 'flow-canvas';
+            const outputs = document.querySelectorAll(`#${active} .script-editor-box`);
+            for(let o of outputs) { if(o.innerText.trim().length > 0) return true; }
+            return false;
+        }
+        function handleTemplateChange(val) {
+            document.getElementById('flow-canvas').innerHTML = '';
+            document.getElementById('long-script-container').innerHTML = '';
+            document.getElementById('sidebar-list').innerHTML = '';
+            blockCount = 1; outlineBlockCount = 0;
+            const headerActions = document.getElementById('header-actions');
+            const viewToggle = document.getElementById('view-mode-group');
+            const globalAiBtn = document.getElementById('btn-global-ai'); 
+            if(val === 'long_script') {
+                currentMode = 'long_script';
+                document.getElementById('flow-canvas').classList.add('hidden');
+                document.getElementById('pipeline-canvas').classList.remove('hidden');
+                viewToggle.classList.add('hidden'); 
+                document.getElementById('outline-list-container').innerHTML = '';
+                addOutlineBlock(); 
+                headerActions.innerHTML = ''; 
+                switchPipelineTab('story'); // 首次切换到长剧本时默认锚定故事梗概页面
+            } else {
+                currentMode = 'normal';
+                document.getElementById('flow-canvas').classList.remove('hidden');
+                document.getElementById('pipeline-canvas').classList.add('hidden');
+                viewToggle.classList.remove('hidden'); 
+                document.getElementById('sidebar-title').innerText = "台本列表";
+                if(globalAiBtn) globalAiBtn.style.display = 'flex';
+                headerActions.innerHTML = `
+                    <button onclick="openSettings()" id="btn-settings-global" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">台本设定</button>
+                    <button onclick="addNewBlock()" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">+ 添加段落</button>
+                `;
+                addNewBlock(true);
+            }
+        }
+        // --- BLOCK LOGIC ---
+        function addNewBlock(isFirst = false, targetContainerId = 'flow-canvas', titleOverride = null) {
+            const id = `block-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            const globalType = document.getElementById('global-template-selector').value;
+            let title = titleOverride;
+            if(!title) {
+                if(globalType === 'long_script') { title = "场景 - 角色 - 时间"; } 
+                else { const sceneName = sceneMap[globalType] || "默认"; title = `XINQI_${sceneName}_默认_${String(blockCount++).padStart(4, '0')}`; }
+            }
+            let content = getTemplateHTML(globalType);
+            const container = document.getElementById(targetContainerId);
+            if (!isFirst && container.lastElementChild && !titleOverride) {
+                const prevWrapper = container.lastElementChild;
+                const prevInput = prevWrapper.querySelector('.prompt-input');
+                if(prevInput) {
+                    let prevText = prevInput.innerHTML;
+                    if(globalType === 'long_script') prevText = prevText.replace(/（大纲内容：.*?）/g, '（大纲内容：...）');
+                    content = prevText;
+                }
+            }
+            const deleteBtn = isFirst ? `<span class="w-8 h-8"></span>` : `<button onclick="deleteBlock('${id}')" class="text-gray-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            const html = `<div id="${id}-wrapper"><div class="flex justify-between items-center mb-3 px-1"><input type="text" value="${title}" oninput="updateSidebar('${id}', this.value)" class="text-sm font-bold text-gray-800 bg-transparent outline-none border-b border-transparent focus:border-primary w-1/2 transition-colors py-1"></div><div id="${id}" class="editor-container shadow-card" onclick="highlightSidebar('${id}')"><div class="editor-header"><span class="text-xs font-bold text-gray-600 flex items-center gap-1">台本 <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-gray-400"></i></span><div class="flex gap-3 items-center">${deleteBtn}<button onclick="generateBlockAI('${id}')" class="bg-ai-btn text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-900 shadow-sm transition-all transform active:scale-95"><i data-lucide="sparkles" class="w-4 h-4 text-yellow-300"></i></button></div></div><div class="prompt-area"><div class="prompt-input" contenteditable="true">${content}</div></div><div class="output-area-wrapper"><div id="output-${id}" class="script-editor-box" contenteditable="true"></div></div></div></div>`;
+            const div = document.createElement('div'); div.innerHTML = html; container.appendChild(div.firstElementChild);
+            addToSidebar(id, title); lucide.createIcons(); highlightSidebar(id);
+        }
+        // --- PROMPT TEMPLATES ---
+        function getTemplateHTML(type) {
+            const ct = (t) => `<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, '${t}', this)">${t} ></span>`;
+            const c=ct('城市'), st=ct('舞台区域'), rA=ct('角色A'), rB=ct('角色B'), em=ct('情绪语气'), to=ct('对话话题'), sy=ct('对话风格'), gr=ct('几组对话'), r=ct('角色'), s=ct('场景');
+            
+            if(type === 'double_phone' || type === 'double_static' || type === 'multi_static') return `请生成一段${c}的${st}的情节下；<br>${rA}${em}和${rB}${em}聊${to}${sy}${gr}的台本`;
+            if(type === 'single_random') return `请生成一段${c}的${st}的情节下；${rA}的随机台本`;
+            if(type === 'single_static') return `请生成一段${c}的${st}的情节下；${rA}${em}${to}${sy}${gr}的台本`;
+            if(type === 'trigger') return `请生成一段${rA}在${c}的${st}的情节下${gr}的台本`;
+            if(type === 'long_script') return `<div class="long-script-prompt-layout"><div class="ls-outline" contenteditable="true">大纲内容：...</div><div class="ls-prompt"><span class="template-block" contenteditable="false">请生成关于${r}在${s}的情节下${gr}的台本</span>&nbsp;</div></div>`;
+            if(type === 'custom') return ''; 
+            return `在此输入自定义Prompt...`;
+        }
+        function generateBlockAI(id) {
+            const out = document.getElementById(`output-${id}`);
+            const btn = document.querySelector(`#${id} button[onclick^="generateBlockAI"]`);
+            const promptArea = document.querySelector(`#${id} .prompt-input`);
+            let rounds = 0; if(promptArea) { const match = promptArea.innerText.match(/(\d+)组/); if(match) rounds = parseInt(match[1]); }
+            if(!rounds) rounds = parseInt(document.getElementById('setting-lines').value) || 3;
+            const totalLines = rounds; 
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`; btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-yellow-300"></i>`; btn.disabled = false;
+                const uid = Date.now();
+                const variantsHtml = `<div class="variant-wrapper" id="variants-${uid}"><div class="text-xs font-bold text-gray-400 mb-2">AI 生成方案 (请选择一个)：</div><div class="variant-grid">${createVariant(uid, 1, id, totalLines)}${createVariant(uid, 2, id, totalLines)}${createVariant(uid, 3, id, totalLines)}</div></div>`;
+                const existing = out.parentElement.querySelector('.variant-wrapper'); if(existing) existing.remove();
+                const div = document.createElement('div'); div.innerHTML = variantsHtml; out.parentElement.appendChild(div.firstElementChild);
+            }, 800);
+        }
+        function createVariant(uid, idx, blockId, totalLines) {
+            let content = "";
+            for(let i=0; i<totalLines; i++) {
+                const role = i % 2 === 0 ? "角色A" : "角色B";
+                content += `${role}:\n“这是第${i+1}句台本内容测试方案${idx}。”\n\n`;
+            }
+            return `<div class="variant-card" id="var-${uid}-${idx}"><div class="variant-content">${content}</div><div class="variant-btn" onclick="confirmVariant('${uid}', ${idx}, '${blockId}')">使用此方案</div></div>`;
+        }
+        function confirmVariant(uid, idx, blockId) {
+            const content = document.querySelector(`#var-${uid}-${idx} .variant-content`).innerText;
+            const out = document.getElementById(`output-${blockId}`); out.innerText = content; 
+            const wrapper = document.getElementById(`variants-${uid}`); if(wrapper) wrapper.remove();
+        }
+        function globalGenerate() {
+            if(currentMode === 'long_script' && document.getElementById('tab-outline').classList.contains('active')) {
+                const outlines = document.querySelectorAll('.outline-card .prompt-input');
+                outlines.forEach((input, i) => { if(!input.innerText.trim()) { input.innerText = "AI生成中..."; setTimeout(() => { input.innerText = `这是AI自动生成的第${i+1}幕大纲内容方案...`; }, 600 + i*200); } });
+                return;
+            }
+            const activeContainer = currentMode === 'long_script' ? 'long-script-container' : 'flow-canvas';
+            document.querySelectorAll(`#${activeContainer} button[onclick^="generateBlockAI"]`).forEach((btn,i) => setTimeout(()=>btn.click(), i*500));
+        }
+        // --- FINAL TABLE LOGIC ---
+        function switchViewMode(mode) {
+             const vE = document.getElementById('view-editor'), vF = document.getElementById('view-final');
+             const templateSelector = document.getElementById('global-template-selector');
+             // 获取台本设定按钮（普通模式和长剧本模式的id不同）
+             const settingsBtn = document.getElementById('btn-settings-global') || document.getElementById('btn-settings-long');
+             // 获取添加段落按钮
+             const addParagraphBtn = document.querySelector('#header-actions button[onclick="addNewBlock()"]');
+             
+             if(mode==='editor'){ 
+                 vE.classList.remove('hidden'); 
+                 vF.classList.add('hidden'); 
+                 document.getElementById('btn-mode-editor').className="px-3 py-1 bg-white rounded shadow-sm text-gray-800"; 
+                 document.getElementById('btn-mode-final').className="px-3 py-1 text-gray-500"; 
+                 
+                 // 恢复所有控件的可交互状态
+                 templateSelector.disabled = false;
+                 templateSelector.style.opacity = '1';
+                 templateSelector.style.pointerEvents = 'auto';
+                 
+                 if(settingsBtn) {
+                     settingsBtn.disabled = false;
+                     settingsBtn.style.opacity = '1';
+                     settingsBtn.style.pointerEvents = 'auto';
+                     // 移除点击提示事件
+                     settingsBtn.removeEventListener('click', showToastHandler);
+                 }
+                 
+                 if(addParagraphBtn) {
+                     addParagraphBtn.disabled = false;
+                     addParagraphBtn.style.opacity = '1';
+                     addParagraphBtn.style.pointerEvents = 'auto';
+                     // 移除点击提示事件
+                     addParagraphBtn.removeEventListener('click', showToastHandler);
+                 }
+             }
+             else { 
+                 vE.classList.add('hidden'); 
+                 vF.classList.remove('hidden'); 
+                 document.getElementById('btn-mode-final').className="px-3 py-1 bg-white rounded shadow-sm text-gray-800"; 
+                 document.getElementById('btn-mode-editor').className="px-3 py-1 text-gray-500"; 
+                 generateFinalTable(); 
+                 
+                 // 禁用所有控件
+                 templateSelector.disabled = true;
+                 templateSelector.style.opacity = '0.5';
+                 templateSelector.style.pointerEvents = 'none';
+                 
+                 if(settingsBtn) {
+                     settingsBtn.disabled = true;
+                     settingsBtn.style.opacity = '0.5';
+                     settingsBtn.style.pointerEvents = 'none';
+                     // 添加点击提示事件
+                     settingsBtn.addEventListener('click', showToastHandler);
+                 }
+                 
+                 if(addParagraphBtn) {
+                     addParagraphBtn.disabled = true;
+                     addParagraphBtn.style.opacity = '0.5';
+                     addParagraphBtn.style.pointerEvents = 'none';
+                     // 添加点击提示事件
+                     addParagraphBtn.addEventListener('click', showToastHandler);
+                 }
+             }
+        }
+        function generateFinalTable() {
+            const b = document.getElementById('final-table-body'); b.innerHTML = '';
+            const active = currentMode === 'long_script' ? 'long-script-container' : 'flow-canvas';
+            document.querySelectorAll(`#${active} [id$="-wrapper"]`).forEach(w => {
+                const title = w.querySelector('input').value;
+                const tags = Array.from(w.querySelectorAll('.prompt-tag')).map(t => `<span class="tag-badge">${t.innerText.replace(' >', '')}</span>`).join('');
+                let content = w.querySelector('.script-editor-box').innerText;
+                content = content.replace(/\n\s*\n/g, '\n'); 
+                if(content.trim()) {
+                    const lines = content.split('\n');
+                    const dialogueRows = [];
+                    lines.forEach(line => {
+                        const cleanLine = line.trim();
+                        if(!cleanLine) return;
+                        
+                        let role = "未知角色"; let text = cleanLine;
+                        if(cleanLine.includes(':') || cleanLine.includes('：')) {
+                            const separator = cleanLine.includes(':') ? ':' : '：';
+                            const parts = cleanLine.split(new RegExp(`${separator}(.+)`)); 
+                            role = parts[0].trim();
+                            text = parts[1] ? parts[1].trim() : ""; 
+                        } else {
+                            role = "对白";
+                            text = cleanLine;
+                        }
+                        dialogueRows.push({role, text});
+                    });
+                    if (dialogueRows.length > 0) {
+                        dialogueRows.forEach((row, index) => {
+                            const tr = document.createElement('tr');
+                            if (index === 0) {
+                                tr.innerHTML = `<td class="text-xs font-bold text-gray-700 bg-white" rowspan="${dialogueRows.length}" style="vertical-align: top;">${title}</td><td class="text-xs text-gray-600">${row.role}</td><td class="text-xs text-gray-800">${row.text}</td><td class="text-xs" rowspan="${dialogueRows.length}" style="vertical-align: top;">${tags || '<span class="text-gray-400">-</span>'}</td>`;
+                            } else {
+                                tr.innerHTML = `<td class="text-xs text-gray-600">${row.role}</td><td class="text-xs text-gray-800">${row.text}</td>`;
+                            }
+                            b.appendChild(tr);
+                        });
+                    }
+                }
+            });
+            if(b.children.length === 0) b.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">暂无生成内容，请先在编辑模式下生成或输入台本。</td></tr>';
+        }
+        // --- Other Funcs ---
+        function switchPipelineTab(tab) {
+            ['story','outline','script'].forEach(s => { 
+                document.getElementById(`tab-${s}`).classList.remove('active'); 
+                document.getElementById(`stage-${s}`).classList.add('hidden'); 
+            });
+            document.getElementById(`tab-${tab}`).classList.add('active'); 
+            document.getElementById(`stage-${tab}`).classList.remove('hidden');
+            
+            const headerActions = document.getElementById('header-actions');
+            const globalAiBtn = document.getElementById('btn-global-ai'); 
+            if(tab==='story') { 
+                document.getElementById('sidebar-title').innerText="故事梗概"; 
+                headerActions.innerHTML = ''; 
+                if(globalAiBtn) globalAiBtn.style.display = 'none'; // Requirement: Hide in Story
+            }
+            if(tab==='outline') { 
+                document.getElementById('sidebar-title').innerText="大纲列表"; 
+                headerActions.innerHTML = ''; 
+                if(globalAiBtn) globalAiBtn.style.display = 'flex'; // Show in Outline
+            }
+            if(tab==='script') {
+                document.getElementById('sidebar-title').innerText="长剧本列表";
+                headerActions.innerHTML = `<button onclick="openSettings()" id="btn-settings-long" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">台本设定</button><button onclick="addNewBlock(false, 'long-script-container')" class="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-600 bg-white hover:border-primary hover:text-primary transition-colors shadow-sm font-medium">+ 添加段落</button>`;
+                if(document.getElementById('long-script-container').children.length === 0) addNewBlock(true, 'long-script-container', "第一幕：场景 - 角色 - 时间");
+                renderSidebar('long-script-container');
+                if(globalAiBtn) globalAiBtn.style.display = 'flex'; // Show in Script
+            }
+        }
+        function addToSidebar(id, title) { const l=document.getElementById('sidebar-list'); const i=document.createElement('div'); i.className='sidebar-item'; i.id=`sidebar-link-${id}`; i.innerText=title; i.onclick=()=>{document.getElementById(id).scrollIntoView({behavior:'smooth',block:'center'});highlightSidebar(id);}; l.appendChild(i); }
+        function updateSidebar(id, v) { const l=document.getElementById(`sidebar-link-${id}`); if(l)l.innerText=v; }
+        function deleteBlock(id) { if(confirm('确定删除？')){document.getElementById(`${id}-wrapper`).remove();document.getElementById(`sidebar-link-${id}`).remove();} }
+        function highlightSidebar(id) { document.querySelectorAll('.sidebar-item').forEach(e=>e.classList.remove('active')); document.getElementById(`sidebar-link-${id}`)?.classList.add('active'); }
+        function renderSidebar(cid) { const l=document.getElementById('sidebar-list'); l.innerHTML=''; document.querySelectorAll(`#${cid} [id$="-wrapper"]`).forEach(w=>{ addToSidebar(w.id.replace('-wrapper',''), w.querySelector('input').value); }); }
+        function showDropdown(e,t,el){e.stopPropagation();const d=document.getElementById('dropdown-container');d.innerHTML='';(dataDict[t]||[]).forEach(x=>{const v=document.createElement('div');v.className='tag-option';v.innerText=x;v.onclick=(ev)=>{ev.stopPropagation();el.innerText=x+' >';d.style.display='none';};d.appendChild(v);});const r=el.getBoundingClientRect();d.style.left=r.left+'px';d.style.top=(r.bottom+scrollY+5)+'px';d.style.display='block';}
+        function handleGlobalClick(){document.getElementById('dropdown-container').style.display='none';}
+        function openSettings() { document.getElementById('modal-settings').style.display='flex'; }
+        function closeSettings() { document.getElementById('modal-settings').style.display='none'; }
+        function confirmSettings() { const l=document.getElementById('setting-lines').value; const btn = document.getElementById(currentMode === 'long_script' ? 'btn-settings-long' : 'btn-settings-global'); if(btn) { btn.className="px-3 py-1.5 border border-green-200 rounded text-xs bg-green-50 text-green-700 transition-colors shadow-sm font-bold"; btn.innerText=`单轮${l}句`; } closeSettings(); }
+        function openDramaSettings() { document.getElementById('modal-drama-settings').style.display='flex'; }
+        function closeDramaSettings() { document.getElementById('modal-drama-settings').style.display='none'; }
+        function handleTextSelection(e) { const sel = window.getSelection(); const pop = document.getElementById('highlight-popover'); if (sel.toString().length > 0 && sel.anchorNode.parentElement.closest('.script-editor-box')) { selectedRange = sel.getRangeAt(0); const r = selectedRange.getBoundingClientRect(); pop.style.display = 'block'; pop.style.top = `${window.scrollY + r.top - 40}px`; pop.style.left = `${window.scrollX + r.left + (r.width / 2) - 30}px`; } else { pop.style.display = 'none'; } }
+        function showRewriteModal(e) { e.preventDefault(); const pop = document.getElementById('highlight-popover'); const modal = document.getElementById('rewrite-modal'); const rect = pop.getBoundingClientRect(); pop.style.display = 'none'; modal.style.display = 'block'; modal.style.top = `${window.scrollY + rect.top + 40}px`; modal.style.left = `${window.scrollX + rect.left}px`; document.getElementById('rewrite-input').focus(); }
+        function closeRewriteModal() { document.getElementById('rewrite-modal').style.display = 'none'; }
+        function confirmRewrite() { const val = document.getElementById('rewrite-input').value; if(selectedRange && val) { selectedRange.deleteContents(); selectedRange.insertNode(document.createTextNode(`[AI改写: ${val}]`)); closeRewriteModal(); } }
+        function addOutlineBlock() { outlineBlockCount++; const id=`outline-${Date.now()}-${Math.random()}`; const acts = ['一','二','三','四','五']; const title = `第${acts[(outlineBlockCount-1)%5]||outlineBlockCount}幕：场景 - 角色 - 时间`; const html=`<div id="${id}" class="outline-card" draggable="true"><div class="outline-header"><div class="flex items-center gap-2"><i data-lucide="grip-vertical" class="w-4 h-4 text-gray-400 cursor-grab"></i><input type="text" class="outline-title-input" value="${title}"></div><button onclick="this.closest('.outline-card').remove()" class="text-gray-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="p-4"><div class="prompt-input" contenteditable="true" placeholder="手动输入或点击上方AI生成..."></div></div></div>`; const div=document.createElement('div'); div.innerHTML=html; document.getElementById('outline-list-container').appendChild(div.firstElementChild); lucide.createIcons(); addDragEvents(div.firstElementChild); }
+        function addDragEvents(item) { item.addEventListener('dragstart',()=>item.classList.add('dragging')); item.addEventListener('dragend',()=>item.classList.remove('dragging')); const c=document.getElementById('outline-list-container'); c.addEventListener('dragover',e=>{e.preventDefault();const a=getDragAfterElement(c,e.clientY);const d=document.querySelector('.dragging');if(a==null)c.appendChild(d);else c.insertBefore(d,a)}); }
+        function getDragAfterElement(c,y){const e=[...c.querySelectorAll('.outline-card:not(.dragging)')];return e.reduce((cl,ch)=>{const b=ch.getBoundingClientRect();const o=y-b.top-b.height/2;if(o<0&&o>cl.o)return{o:o,e:ch};else return cl},{o:Number.NEGATIVE_INFINITY}).e;}
+        
+        function outlineToScript() {
+            const container = document.getElementById('long-script-container'); container.innerHTML = '';
+            document.querySelectorAll('.outline-card').forEach(o => {
+                const content = o.querySelector('.prompt-input').innerText;
+                const title = o.querySelector('.outline-title-input').value;
+                const tpl = getTemplateHTML('long_script').replace('大纲内容：...', `大纲内容：${content}`);
+                addNewBlock(false, 'long-script-container', title);
+                const lastBlock = container.lastElementChild;
+                if(lastBlock) lastBlock.querySelector('.prompt-input').innerHTML = tpl;
+            });
+            switchPipelineTab('script');
+        }
+        // --- NEW: Toggle AI Assistant in Header ---
+        function toggleAssistant() {
+            const panel = document.getElementById('ai-assistant-panel');
+            const mainContainer = document.getElementById('main-view-container');
+            const icon = document.querySelector('#ai-assistant-toggle-btn i');
+            
+            panel.classList.toggle('open');
+            if(panel.classList.contains('open')) {
+                mainContainer.classList.add('mr-panel');
+                icon.setAttribute('data-lucide', 'panel-right-close');
+            } else {
+                mainContainer.classList.remove('mr-panel');
+                icon.setAttribute('data-lucide', 'panel-right-open');
+            }
+            lucide.createIcons();
+        }
+    </script>
+
+</body></html>
