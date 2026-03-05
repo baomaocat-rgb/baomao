@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<!-- saved from url=(0336)file:///Users/baomao/Desktop/%E6%B8%B8%E6%88%8FAI%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7/dj%20tacker%20%E5%89%A7%E6%9C%AC%E4%B8%93%E5%AE%B6/%E6%B5%81%E7%A8%8B%E5%88%9B%E4%BD%9C%E5%8E%9F%E5%9E%8B/dj%20tracker.%202026305%E7%BE%8E%E6%9C%AF%E6%B5%81%E7%A8%8B%E4%BA%A4%E4%BA%92%E5%8E%9F%E5%9E%8Bv7.0%E7%89%88%E6%9C%AChtml.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Tracker - Process System V2.6 (Shortcut Fix)</title>
+    <link href="./DJ Tracker - Process System V2.6 (Shortcut Fix)_files/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FFA000;
+            --primary-orange-hover: #FF8F00;
+            --primary-teal: #00BFA5;
+            --bg-color: #F8F9FA; 
+            --sidebar-bg: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #F0F0F0; 
+            --input-border: #EBEBEB; 
+            --sidebar-width: 240px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: var(--bg-color); display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+
+        /* --- 左侧导航栏 --- */
+        .sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid #F0F0F0; flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: 900; font-style: italic; margin-bottom: 40px; letter-spacing: 1px; color: #2c2c2c; }
+        .nav-menu { list-style: none; flex-grow: 1; }
+        .nav-item { margin-bottom: 8px; padding: 12px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; color: var(--text-secondary); font-size: 14px; transition: all 0.2s; }
+        .nav-item:hover { background-color: rgba(0,0,0,0.02); }
+        .nav-item.active { background-color: var(--primary-orange); color: white; box-shadow: 0 4px 12px rgba(255, 160, 0, 0.25); }
+        .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
+        .user-profile { display: flex; align-items: center; padding-top: 20px; border-top: 1px solid #F0F0F0; font-size: 14px; }
+        .avatar { width: 32px; height: 32px; background-color: #333; border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; }
+
+        /* --- 主内容区 --- */
+        .main-content { flex: 1; padding: 24px 32px; overflow-y: auto; background-color: #F8F9FA; position: relative; }
+        .page-container { display: none; animation: fadeIn 0.3s ease; }
+        .page-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 列表页样式 --- */
+        .list-header { background: white; padding: 24px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.015); border: 1px solid #F5F6F8; }
+        .list-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .list-title { font-size: 20px; font-weight: 600; }
+        .header-actions { display: flex; gap: 12px; }
+        
+        .btn-new-process { background-color: var(--primary-orange); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: 0.2s; }
+        .btn-new-process:hover { background-color: var(--primary-orange-hover); }
+        .btn-create-template { background-color: var(--primary-teal); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: 0.2s; }
+        .btn-create-template:hover { background-color: #00A892; }
+        
+        .template-section { margin-bottom: 20px; }
+        .template-section-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+        .template-cards-wrapper { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+        .template-card { background: white; border: 1px solid #EBEBEB; border-radius: 8px; padding: 16px; width: 220px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--primary-orange); }
+        .template-card:hover { background: #FFFBF0; transform: translateY(-2px); border-color: var(--primary-orange); box-shadow: 0 6px 16px rgba(255, 160, 0, 0.08); }
+        
+        .tabs-main { display: flex; border-bottom: 1px solid #F0F0F0; margin-bottom: 20px; }
+        .tab-item { padding: 12px 24px; cursor: pointer; font-size: 14px; color: var(--text-secondary); position: relative; }
+        .tab-item.active { color: var(--primary-orange); font-weight: 600; }
+        .tab-item.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; border-radius: 3px 3px 0 0; background-color: var(--primary-orange); }
+        .filter-tags { display: flex; gap: 10px; margin-bottom: 20px; }
+        .filter-tag { padding: 6px 16px; border-radius: 6px; background: #F5F6F8; font-size: 13px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; border: 1px solid transparent; }
+        .filter-tag.active { background: #FFF3E0; color: var(--primary-orange); font-weight: 500; border-color: rgba(255, 160, 0, 0.2); }
+        
+        .search-bar-wrapper { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .search-bar-inner { position: relative; width: 400px; }
+        .search-input { width: 100%; padding: 10px 16px 10px 40px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 14px; background: white; transition: 0.2s; }
+        .search-input:focus { border-color: var(--primary-orange); outline: none; box-shadow: 0 0 0 3px rgba(255, 160, 0, 0.08); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #BABABA; }
+        
+        .process-card { background: white; border-radius: 8px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; border: 1px solid #F5F6F8; box-shadow: 0 2px 12px rgba(0,0,0,0.015); }
+        .process-card:hover { border-color: #EBEBEB; box-shadow: 0 6px 24px rgba(0,0,0,0.04); transform: translateY(-1px); }
+        .card-left { flex: 1; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+        
+        /* 状态标签样式 */
+        .status-badge { font-size: 12px; padding: 2px 8px; border-radius: 4px; border: 1px solid; }
+        .status-badge.ongoing { color: #EF6C00; border-color: rgba(239, 108, 0, 0.3); background: #FFF9F5; }
+        .status-badge.archived { color: #2E7D32; border-color: rgba(46, 125, 50, 0.3); background: #F6FCF6; }
+        .status-badge.rejected { color: #D32F2F; border-color: rgba(211, 47, 47, 0.3); background: #FDEDED; }
+
+        .card-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; font-size: 13px; color: var(--text-main); }
+        .info-label { color: var(--text-light); margin-right: 8px; }
+        .arrow-box { width: 32px; height: 32px; border: 1px solid #F0F0F0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #CCC; transition: 0.2s; }
+        .process-card:hover .arrow-box { color: var(--primary-orange); border-color: rgba(255, 160, 0, 0.2); background: #FFFBF0; }
+
+        /* ================= 详情页样式 ================= */
+        .card { background: var(--card-bg); border-radius: 8px; padding: 28px 32px; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.02); border: 1px solid #F5F6F8; }
+        
+        .header-section { display: flex; align-items: center; margin-bottom: 30px; }
+        .back-btn { width: 32px; height: 32px; border: 1px solid var(--input-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px; cursor: pointer; background: white; color: var(--text-secondary); transition: 0.2s;}
+        .back-btn:hover { border-color: #CCC; color: #333; }
+        .page-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; }
+        .edit-icon { margin-left: 10px; font-size: 14px; color: var(--text-light); cursor: pointer; transition: 0.2s;}
+        .edit-icon:hover { color: var(--primary-orange); }
+
+        .process-flow { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; padding: 0 20px; position: relative; }
+        .process-flow::before { content: ''; position: absolute; top: 12px; left: 50px; right: 50px; height: 1px; background: #F0F0F0; z-index: 0; }
+        .step-item { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; width: 120px; cursor: pointer; transition: 0.2s; }
+        .step-icon { width: 24px; height: 24px; border-radius: 50%; background: #F0F0F0; margin-bottom: 10px; border: 3px solid white; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; box-sizing: content-box; }
+        .step-item.active .step-icon { background: var(--primary-orange); box-shadow: 0 0 0 2px rgba(255, 160, 0, 0.1); }
+        .step-item.rejected .step-icon { background: #D32F2F; box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1); } 
+        .step-item.completed .step-icon { background: #F0F0F0; color: transparent; } 
+        .step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); text-align: center; }
+        .step-item:not(.active):not(.rejected) .step-title { color: #888; font-weight: 500; }
+        .step-user { font-size: 12px; color: var(--text-light); }
+
+        .collapse-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 20px; }
+        .collapse-title { position: relative; padding-left: 12px; font-size: 16px; font-weight: 600; color: #333; display: flex; align-items: center; }
+        .collapse-title::before { content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; width: 3px; background-color: var(--primary-teal); border-radius: 2px; }
+        .collapse-icon { color: #E0E0E0; font-size: 18px; transition: transform 0.3s; }
+        .collapse-content { display: block; }
+        .collapse-content.collapsed { display: none; }
+        .rotate-180 { transform: rotate(180deg); }
+
+        /* 网格化表单容器 */
+        .form-box { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: white; margin-bottom: 20px; }
+        .form-row { display: flex; border-bottom: 1px solid var(--border-color); align-items: stretch; min-height: 60px; width: 100%; }
+        .form-row:last-child { border-bottom: none; }
+        .form-label { width: 160px; background-color: #FAFBFC; color: var(--text-secondary); font-size: 14px; display: flex; align-items: center; justify-content: flex-end; padding: 16px 20px; flex-shrink: 0; border-right: 1px solid var(--border-color); line-height: 1.5; }
+        .form-row:has(textarea) .form-label { align-items: flex-start; padding-top: 20px; }
+        .form-label.required::before { content: '*'; color: #FF4D4F; margin-right: 6px; font-family: SimSun, sans-serif; font-weight: bold;}
+        .form-input-container { flex-grow: 1; padding: 16px 24px; background-color: #FFF; display: flex; flex-direction: column; justify-content: center; }
+
+        .form-row.split { flex-direction: row; }
+        .split-half { display: flex; flex: 1; }
+        .split-half .form-label { width: 160px; border-right: 1px solid var(--border-color); }
+        .split-half:nth-child(2) { border-left: 1px solid var(--border-color); }
+
+        .input-field { width: 100%; padding: 10px 14px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; color: #333; }
+        .input-field::placeholder { color: #CCC; }
+        .input-field:focus { border-color: var(--primary-orange); box-shadow: 0 0 0 3px rgba(255, 160, 0, 0.08); }
+        .input-field:disabled { background: #FAFBFC; color: #999; cursor: not-allowed; border-color: #F0F0F0; }
+        textarea.input-field { resize: vertical; min-height: 80px; }
+
+        .radio-group { display: flex; gap: 24px; align-items: center; }
+        .radio-item { display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #333;}
+        .radio-item input { margin-right: 8px; width: 16px; height: 16px; accent-color: var(--primary-orange); cursor: pointer;}
+        
+        .select-wrapper { position: relative; width: 100%; }
+        .select-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 14px; appearance: none; background: white; cursor: pointer; color: #333; transition: 0.2s;}
+        .select-wrapper select:focus { outline: none; border-color: var(--primary-orange); box-shadow: 0 0 0 3px rgba(255, 160, 0, 0.08); }
+        .select-wrapper::after { content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #BABABA; }
+        
+        .helper-text { font-size: 12px; color: #999; margin-top: 6px; }
+
+        .upload-box { border: 1px dashed var(--input-border); border-radius: 8px; padding: 24px; text-align: center; color: var(--text-light); cursor: pointer; transition: all 0.2s; background: #FAFBFC;}
+        .upload-box:hover { border-color: var(--primary-orange); color: var(--primary-orange); background: #FFFBF0;}
+        
+        .big-option-group { display: flex; gap: 24px; width: 100%; }
+        .big-option-label { flex: 1; border: 1px solid var(--input-border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: white; }
+        .big-option-label input { display: none; }
+        .big-option-label.selected { border-color: var(--primary-orange); background: #FFFBF0; color: var(--primary-orange); font-weight: 600; box-shadow: 0 2px 8px rgba(255, 160, 0, 0.05); }
+
+        /* 审批表格 */
+        .approval-table { width: 100%; font-size: 14px; }
+        .approval-header { display: grid; grid-template-columns: 200px 120px 200px 120px 120px; padding: 16px 20px; background-color: #FAFBFC; color: var(--text-secondary); font-weight: 500; border-radius: 8px; margin-bottom: 8px; }
+        .approval-row { display: grid; grid-template-columns: 200px 120px 200px 120px 120px; padding: 20px; align-items: center; border-bottom: 1px solid #F5F6F8; position: relative; }
+        .approval-row:last-child { border-bottom: none; }
+        .timeline-node { display: flex; align-items: center; position: relative; font-weight: 500; color: #333; }
+        .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #EBEBEB; margin-right: 16px; z-index: 1; }
+        .timeline-dot.active { background-color: var(--primary-orange); box-shadow: 0 0 0 3px rgba(255, 160, 0, 0.15); }
+        .timeline-line { position: absolute; left: 24px; top: 40px; bottom: -20px; width: 1px; background-color: #F0F0F0; z-index: 0; }
+        .approval-row:last-child .timeline-line { display: none; }
+        .status-text-orange { color: var(--primary-orange); font-weight: 500;}
+        .status-text-red { color: #D32F2F; font-weight: 500;} 
+        .status-text-gray { color: #999; }
+
+        /* 底部操作区按钮 */
+        .action-bar { display: flex; justify-content: center; gap: 16px; margin-top: 24px; margin-bottom: 40px;}
+        .btn { padding: 12px 36px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px;}
+        .btn-primary { background-color: var(--primary-orange); color: white; box-shadow: 0 4px 12px rgba(255, 160, 0, 0.2); }
+        .btn-primary:hover { background-color: var(--primary-orange-hover); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255, 160, 0, 0.25); }
+        .btn-secondary { background-color: white; border-color: #EBEBEB; color: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.02);}
+        .btn-secondary:hover { border-color: var(--primary-orange); color: var(--primary-orange); }
+        
+        .btn-danger { background-color: white; border-color: #D32F2F; color: #D32F2F; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .btn-danger:hover { background-color: #FDEDED; color: #D32F2F; }
+
+        /* ================= 新建流程弹窗 ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: white; width: 560px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; transform: translateY(20px); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #FAFBFC;}
+        .modal-title { font-size: 16px; font-weight: 600; color: #333; }
+        .modal-close { cursor: pointer; color: #999; font-size: 18px; transition: 0.2s; padding: 4px; }
+        .modal-close:hover { color: #333; }
+        .modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
+        .modal-process-item { padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; background: white; }
+        .modal-process-item:hover { border-color: var(--primary-orange); box-shadow: 0 4px 16px rgba(255, 160, 0, 0.08); transform: translateY(-1px); }
+        .modal-process-item:last-child { margin-bottom: 0; }
+        .modal-process-name { font-size: 15px; font-weight: 600; color: var(--primary-orange); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;}
+        .modal-process-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* Builder 页面 */
+        .builder-container { background: white; border-radius: 8px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.02); border: 1px solid #F5F6F8; }
+        .builder-step-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; margin-bottom: 24px; background: #FAFBFC; }
+        .builder-step-header { display: flex; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed #EBEBEB; padding-bottom: 12px; }
+        .builder-step-title { font-weight: bold; color: var(--primary-teal); font-size: 15px; }
+        .btn-remove-step { color: #ff4d4f; cursor: pointer; font-size: 13px; }
+        .builder-field-item { background: white; border: 1px solid #F0F0F0; padding: 20px; border-radius: 8px; margin-bottom: 12px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.01);}
+        .builder-add-btn { background: none; border: 1px dashed var(--primary-teal); color: var(--primary-teal); width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 12px; transition: 0.2s; }
+        .builder-add-btn:hover { background: #E6F9F6; border-style: solid; }
+        .field-row-inline { display: flex; gap: 20px; align-items: center; margin-bottom: 12px; }
+        .field-row-inline > div { flex: 1; }
+        .btn-remove-field { position: absolute; right: 16px; top: 16px; color: #CCC; cursor: pointer; transition: 0.2s;}
+        .btn-remove-field:hover { color: #ff4d4f; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">DJ TRACKER</div>
+            <ul class="nav-menu">
+                <li class="nav-item"><i class="fas fa-th-large"></i> Dashboard</li>
+                <li class="nav-item"><i class="fas fa-book-open"></i> Story</li>
+                <li class="nav-item"><i class="fas fa-bolt"></i> Gameplay</li>
+                <li class="nav-item"><i class="fas fa-layer-group"></i> Feature</li>
+                <li class="nav-item"><i class="fas fa-user-astronaut"></i> Character</li>
+                <li class="nav-item active" onclick="showListPage()"><i class="fas fa-project-diagram"></i> Process</li>
+                <li class="nav-item"><i class="fas fa-cog"></i> Setting</li>
+            </ul>
+        </div>
+        <div class="user-profile">
+            <div class="avatar"><i class="fas fa-dragon"></i></div>
+            <span>wenjing03</span>
+            <i class="fas fa-sign-out-alt" style="margin-left: auto; cursor: pointer; color: #999;"></i>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="page-list" class="page-container active">
+            <div class="list-header">
+                <div class="list-title-row">
+                    <div class="list-title">流程中心</div>
+                    <div class="header-actions">
+                        <button class="btn-new-process" onclick="showNewProcessModal()"><i class="fas fa-plus"></i> 新建流程</button>
+                        <button class="btn-create-template" onclick="showTemplateBuilder()"><i class="fas fa-magic"></i> 流程创建</button>
+                    </div>
+                </div>
+                <div class="template-section">
+                    <div class="template-section-title">快速发起新流程</div>
+                    <div class="template-cards-wrapper" id="template-cards-container">
+                    <div class="template-card" onclick="createNewProcess(0)">
+                        <i class="fas fa-paint-brush"></i><div class="temp-name">美术原画制作</div><div style="font-size:12px; color:#999;">点击发起</div>
+                    </div></div>
+                </div>
+                <div class="tabs-main">
+                    <div class="tab-item active" onclick="switchTab(&#39;pending&#39;, this)">待处理</div>
+                    <div class="tab-item" onclick="switchTab(&#39;processed&#39;, this)">已处理</div>
+                    <div class="tab-item" onclick="switchTab(&#39;initiated&#39;, this)">已发起</div>
+                </div>
+                <div class="filter-tags" id="filter-tags-display"><div class="filter-tag active">进行中 (1)</div></div>
+            </div>
+            <div class="search-bar-wrapper">
+                <div class="search-bar-inner">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="请输入流程标题、流程编号">
+                </div>
+            </div>
+            <div id="process-list-container">
+                    <div class="process-card" onclick="openProcess(1)">
+                        <div class="card-left">
+                            <div class="card-title">美术流程-文韬-2026-03-02 <span class="status-badge ongoing">进行中</span></div>
+                            <div class="card-info-grid">
+                                <div><span class="info-label">当前节点:</span> 主美确认需求</div>
+                                <div><span class="info-label">操作者:</span> 王某某</div>
+                                <div><span class="info-label">流程类型:</span> 美术原画制作</div>
+                                <div><span class="info-label">创建时间:</span> 2026-03-02 11:56</div>
+                            </div>
+                        </div>
+                        <div class="card-right"><div class="arrow-box"><i class="fas fa-chevron-right"></i></div></div>
+                    </div></div>
+        </div>
+
+        <div id="page-detail" class="page-container">
+            <div class="card" style="padding-bottom: 10px;">
+                <div class="header-section">
+                    <div class="back-btn" onclick="showListPage()"><i class="fas fa-chevron-left"></i></div>
+                    <div class="page-title">
+                        <span id="page-title-text"></span>
+                        <i class="fas fa-pen-to-square edit-icon" onclick="editTitle()"></i>
+                    </div>
+                </div>
+                <div class="process-flow" id="dynamic-process-flow"></div>
+            </div>
+
+            <div id="dynamic-content"></div>
+
+            <div class="card" id="approval-process-card">
+                <div class="collapse-header" onclick="toggleCard(this)">
+                    <div class="collapse-title">审批进程</div>
+                    <i class="fas fa-chevron-up collapse-icon"></i>
+                </div>
+                <div class="collapse-content" id="approval-content"></div>
+            </div>
+
+            <div class="card" id="global-note-card">
+                <div class="collapse-header" onclick="toggleCard(this)">
+                    <div class="collapse-title">意见或备注</div>
+                    <i class="fas fa-chevron-up collapse-icon"></i>
+                </div>
+                <div class="collapse-content">
+                    <div style="font-size:12px; color:#999; margin-bottom:8px;">流程意见或备注</div>
+                    <textarea class="input-field" placeholder="请输入..." style="height: 100px; width: 100%; border-color: var(--input-border);"></textarea>
+                </div>
+            </div>
+
+            <div class="action-bar" id="detail-actions"></div>
+        </div>
+
+        <div id="page-template-create" class="page-container">
+            <div class="header-section" style="margin-bottom: 20px;">
+                <div class="back-btn" onclick="showListPage()"><i class="fas fa-chevron-left"></i></div>
+                <div class="page-title">创建自定义流程模板</div>
+            </div>
+            <div class="builder-container">
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 10px;">模板名称 <span style="color:red">*</span></div>
+                    <input type="text" id="builder-template-name" class="input-field" placeholder="例如：新角色入库审批、月度报销流程等">
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 10px;">流程说明</div>
+                    <textarea id="builder-template-desc" class="input-field" placeholder="简要描述该流程的用途和流转说明" style="min-height: 80px;"></textarea>
+                </div>
+                <div id="builder-steps-container"></div>
+                <button class="builder-add-btn" onclick="builderAddStep()"><i class="fas fa-plus"></i> 添加流程节点</button>
+                <div class="action-bar" style="border-top: 1px solid #F0F0F0; padding-top: 30px; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="showListPage()">取消</button>
+                    <button class="btn btn-primary" onclick="saveTemplate()"><i class="fas fa-paper-plane"></i> 发布流程</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="new-process-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">选择要发起的流程</div>
+                    <i class="fas fa-times modal-close" onclick="closeNewProcessModal()"></i>
+                </div>
+                <div class="modal-body" id="modal-process-list"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================= 数据模型 =================
+        let processTemplates = [
+            {
+                id: 0,
+                name: "美术原画制作",
+                description: "该流程包含原画需求发起、主美确认审核、角色正式命名、原画设计到最终模型制作的完整标准化管控闭环。",
+                isLegacy: true,
+                steps: [
+                    { name: "策划发起", operator: "文韬" },
+                    { name: "主美确认需求", operator: "王某某" },
+                    { name: "策划正式命名", operator: "文韬" },
+                    { name: "原画设计", operator: "李某某" },
+                    { name: "模型设计", operator: "陈某" }
+                ]
+            }
+        ];
+
+        const processes = [
+            {
+                id: 1, templateId: 0, title: "美术流程-文韬-2026-03-02",
+                currentStep: 1, type: "美术原画制作", createTime: "2026-03-02 11:56", status: "ongoing",
+                data: {
+                    0: { desc: "暗黑风格刺客", note: "需突出神秘感，身手敏捷", gender: "男性", camp: "Enemy", body: "纤细", remark: "紧急需求" },
+                    1: {}, 2: {}, 3: {}, 4: {}
+                }
+            },
+            {
+                id: 2, templateId: 0, title: "美术流程-文韬-2026-02-24",
+                currentStep: 5, type: "美术原画制作", createTime: "2026-02-09 18:10", status: "archived",
+                data: {
+                    0: { desc: "森林精灵", note: "治愈系", gender: "女性", camp: "Ally", body: "标准", remark: "正常排期" },
+                    1: { design_type: "new", remark: "同意" },
+                    2: { name_cn: "翠丝", name_en: "Tracy", remark: "无" },
+                    3: { link: "http://art.com/1", remark: "已上传" },
+                    4: { link: "http://model.com/1", remark: "完成" }
+                }
+            }
+        ];
+
+        let activeProcessId = null; let viewingHistoryMode = false; let currentListFilter = 'pending'; let currentSubFilter = 'all'; let draftTemplate = { name: "", steps: [] };
+
+        document.addEventListener('DOMContentLoaded', () => { renderList(); });
+
+        // ================= 新建流程弹窗逻辑 =================
+        function showNewProcessModal() {
+            const container = document.getElementById('modal-process-list'); container.innerHTML = '';
+            processTemplates.forEach(t => {
+                const icon = t.isLegacy ? 'fa-paint-brush' : 'fa-file-alt';
+                const desc = t.description || '自定义创建的业务审批流程。';
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="modal-process-item" onclick="createNewProcess(${t.id})">
+                        <div class="modal-process-name"><i class="fas ${icon}"></i> ${t.name}</div>
+                        <div class="modal-process-desc">${desc}</div>
+                    </div>`);
+            });
+            const modal = document.getElementById('new-process-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeNewProcessModal() { const modal = document.getElementById('new-process-modal'); modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); }
+
+        // ================= 列表与发起逻辑 =================
+        function switchTab(filter, element) { currentListFilter = filter; currentSubFilter = 'all'; document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active')); element.classList.add('active'); renderList(); }
+        function switchSubFilter(subFilter) { currentSubFilter = subFilter; renderList(); }
+
+        function renderList() {
+            renderTemplateCards();
+            const container = document.getElementById('process-list-container'); container.innerHTML = '';
+            const filterTags = document.getElementById('filter-tags-display'); let filteredProcesses = [];
+
+            if (currentListFilter === 'pending') { filteredProcesses = processes.filter(p => p.status === 'ongoing'); filterTags.innerHTML = `<div class="filter-tag active">进行中 (${filteredProcesses.length})</div>`; }
+            else if (currentListFilter === 'processed') { filteredProcesses = processes.filter(p => p.status === 'archived' || p.status === 'rejected'); filterTags.innerHTML = `<div class="filter-tag active">已处理 (${filteredProcesses.length})</div>`; }
+            else {
+                const allCount = processes.length; const ongoingCount = processes.filter(p => p.status === 'ongoing').length; const archivedCount = processes.filter(p => p.status === 'archived').length; const rejectedCount = processes.filter(p => p.status === 'rejected').length;
+                filteredProcesses = currentSubFilter === 'all' ? processes : processes.filter(p => p.status === currentSubFilter);
+                filterTags.innerHTML = `
+                    <div class="filter-tag ${currentSubFilter === 'all' ? 'active' : ''}" onclick="switchSubFilter('all')">全部 (${allCount})</div>
+                    <div class="filter-tag ${currentSubFilter === 'ongoing' ? 'active' : ''}" onclick="switchSubFilter('ongoing')">进行中 (${ongoingCount})</div>
+                    <div class="filter-tag ${currentSubFilter === 'archived' ? 'active' : ''}" onclick="switchSubFilter('archived')">已归档 (${archivedCount})</div>
+                    <div class="filter-tag ${currentSubFilter === 'rejected' ? 'active' : ''}" onclick="switchSubFilter('rejected')">不通过 (${rejectedCount})</div>`;
+            }
+
+            filteredProcesses.forEach(p => {
+                const template = processTemplates.find(t => t.id === p.templateId);
+                let statusBadge = '';
+                if (p.status === 'archived') statusBadge = `<span class="status-badge archived">已归档</span>`;
+                else if (p.status === 'rejected') statusBadge = `<span class="status-badge rejected">不通过</span>`;
+                else statusBadge = `<span class="status-badge ongoing">进行中</span>`;
+
+                let currentStepName = (p.status === 'archived') ? "已归档" : (p.status === 'rejected' ? "已终止" : "未知"); 
+                let currentOperator = "-";
+                if (p.status === 'ongoing' && template.steps[p.currentStep]) { currentStepName = template.steps[p.currentStep].name; currentOperator = template.steps[p.currentStep].operator; }
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="process-card" onclick="openProcess(${p.id})">
+                        <div class="card-left">
+                            <div class="card-title">${p.title} ${statusBadge}</div>
+                            <div class="card-info-grid">
+                                <div><span class="info-label">当前节点:</span> ${currentStepName}</div>
+                                <div><span class="info-label">操作者:</span> ${currentOperator}</div>
+                                <div><span class="info-label">流程类型:</span> ${template.name}</div>
+                                <div><span class="info-label">创建时间:</span> ${p.createTime}</div>
+                            </div>
+                        </div>
+                        <div class="card-right"><div class="arrow-box"><i class="fas fa-chevron-right"></i></div></div>
+                    </div>`);
+            });
+        }
+
+        function renderTemplateCards() {
+            const container = document.getElementById('template-cards-container'); container.innerHTML = '';
+            processTemplates.forEach(t => {
+                const icon = t.isLegacy ? 'fa-paint-brush' : 'fa-file-alt';
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="template-card" onclick="createNewProcess(${t.id})">
+                        <i class="fas ${icon}"></i><div class="temp-name">${t.name}</div><div style="font-size:12px; color:#999;">点击发起</div>
+                    </div>`);
+            });
+        }
+
+        function showListPage() { document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active')); document.getElementById('page-list').classList.add('active'); renderList(); }
+
+        function createNewProcess(templateId) {
+            closeNewProcessModal();
+            const template = processTemplates.find(t => t.id === templateId);
+            const now = new Date(); const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const newProcess = { id: processes.length + 1, templateId: templateId, title: `${template.name}-wenjing-${timeStr.split(' ')[0]}`, currentStep: 0, createTime: timeStr, status: "ongoing", data: {} };
+            template.steps.forEach((_, index) => { newProcess.data[index] = {}; });
+            processes.unshift(newProcess); openProcess(newProcess.id);
+        }
+
+        // ================= 详情页渲染核心 =================
+        function openProcess(id) {
+            activeProcessId = id; viewingHistoryMode = false;
+            const process = processes.find(p => p.id === id); const template = processTemplates.find(t => t.id === process.templateId);
+            document.getElementById('page-title-text').innerText = process.title;
+            document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active')); document.getElementById('page-detail').classList.add('active');
+            
+            renderFlowBar(template, process.currentStep, process.status); 
+            renderStepContent(process.currentStep, false); 
+            renderApprovalProcess(template, process.currentStep, process.status);
+        }
+
+        function renderFlowBar(template, currentStep, status) {
+            const container = document.getElementById('dynamic-process-flow'); container.innerHTML = '';
+            const allNodes = [...template.steps, { name: "归档", operator: "系统" }]; const totalSteps = allNodes.length;
+            allNodes.forEach((node, i) => {
+                let statusClass = ''; let iconHtml = '';
+                if (i < currentStep) { statusClass = 'completed'; iconHtml = '<i class="fas fa-check"></i>'; } 
+                else if (i === currentStep) { 
+                    if (status === 'rejected') { statusClass = 'rejected'; iconHtml = '<i class="fas fa-times"></i>'; } 
+                    else { statusClass = 'active'; iconHtml = (i === totalSteps - 1) ? '<i class="fas fa-archive"></i>' : '<i class="fas fa-clock"></i>'; }
+                } 
+                else { iconHtml = (i === totalSteps - 1) ? '<i class="fas fa-archive"></i>' : ''; }
+                
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="step-item ${statusClass}" id="step-${i}" onclick="viewStepHistory(${i})">
+                        <div class="step-icon">${iconHtml}</div>
+                        <div class="step-title">${node.name}</div>
+                        <div class="step-user">${node.operator}</div>
+                    </div>`);
+            });
+        }
+
+        function renderApprovalProcess(template, currentStep, status) {
+            const container = document.getElementById('approval-content'); let rowsHTML = '';
+            template.steps.forEach((step, index) => {
+                const operator = step.operator; const receiver = (index + 1 < template.steps.length) ? template.steps[index + 1].operator : "-";
+                let statusText = "待审批"; let statusClass = "status-text-gray"; let timeStr = ""; let dotClass = "timeline-dot";
+                
+                if (currentStep > index) { statusText = index === 0 ? "提出申请" : "审批通过"; statusClass = "status-text-orange"; timeStr = "2026-03-02-15:03:20"; dotClass += " active"; } 
+                else if (currentStep === index) { 
+                    if (status === 'rejected') { statusText = "审核不通过"; statusClass = "status-text-red"; dotClass += " active"; }
+                    else { statusText = index === 0 ? "提出申请" : "审批中"; statusClass = "status-text-orange"; dotClass += " active"; }
+                }
+
+                rowsHTML += `
+                    <div class="approval-row">
+                         <div class="timeline-line"></div>
+                        <div class="timeline-node"><div class="${dotClass}"></div><span>${step.name}</span></div>
+                        <div class="${statusClass}">${statusText}</div>
+                        <div>${timeStr}</div><div>${operator}</div><div>${receiver}</div>
+                    </div>`;
+            });
+            container.innerHTML = `<div class="approval-table">
+                <div class="approval-header"><div>节点</div><div>操作状态</div><div>操作时间</div><div>操作人</div><div>接收人</div></div>
+                ${rowsHTML}</div>`;
+        }
+
+        function renderStepContent(stepIndex, isHistory = false) {
+            const container = document.getElementById('dynamic-content'); 
+            const actions = document.getElementById('detail-actions'); 
+            const globalNote = document.getElementById('global-note-card');
+            
+            const process = processes.find(p => p.id === activeProcessId); 
+            const template = processTemplates.find(t => t.id === process.templateId);
+            const stepData = process.data[stepIndex] || {}; 
+            const isArchiveStep = stepIndex === template.steps.length;
+
+            if (isArchiveStep || isHistory || process.status === 'rejected') { 
+                actions.style.display = 'none'; globalNote.style.display = 'none'; 
+            } else { 
+                actions.style.display = 'flex'; globalNote.style.display = 'block'; globalNote.querySelector('textarea').value = ''; 
+                
+                if (template.isLegacy && stepIndex === 1) {
+                    actions.innerHTML = `
+                        <button class="btn btn-primary" onclick="approveStep()"><i class="fas fa-check-circle"></i> 审核通过</button>
+                        <button class="btn btn-danger" onclick="rejectStep()"><i class="fas fa-times-circle"></i> 不通过</button>
+                    `;
+                } else {
+                    actions.innerHTML = `
+                        <button class="btn btn-primary" onclick="submitStep()"><i class="fas fa-check"></i> 提交</button>
+                        <button class="btn btn-secondary"><i class="fas fa-save"></i> 保存</button>
+                    `;
+                }
+            }
+
+            let html = '';
+            if (isArchiveStep) {
+                html = `<div style="background:#E6F7E9;color:#2E7D32;padding:20px;text-align:center;border-radius:8px;margin-bottom:20px;font-weight:bold;"><i class="fas fa-check-circle"></i> 流程已彻底归档完成</div>`;
+                html += getDynamicReviewHTML(template, process.data, stepIndex - 1); container.innerHTML = html; return;
+            }
+
+            if (stepIndex > 0) { html += getDynamicReviewHTML(template, process.data, stepIndex - 1); }
+
+            let formTitle = template.steps[stepIndex].name; let formContent = "";
+
+            if (template.isLegacy) { formContent = getLegacyFormContent(stepIndex, stepData, isHistory || process.status === 'rejected'); } 
+            else {
+                const fields = template.steps[stepIndex].fields || [];
+                if (fields.length === 0) { formContent = `<div style="color:#999; text-align:center; padding: 30px;">本节点仅需审批，无特定字段填写要求。</div>`; } 
+                else {
+                    formContent += `<div class="form-box">`;
+                    fields.forEach(f => {
+                        formContent += `<div class="form-row"><div class="form-label">${f.label}</div><div class="form-input-container">`;
+                        if (f.type === 'text') formContent += `<input type="text" class="input-field" placeholder="请输入..." ${(isHistory||process.status==='rejected')?'disabled':''}>`;
+                        else if (f.type === 'textarea') formContent += `<textarea class="input-field" placeholder="请输入..." ${(isHistory||process.status==='rejected')?'disabled':''}></textarea>`;
+                        else if (f.type === 'upload') formContent += `<div class="upload-box"><i class="fas fa-cloud-upload-alt" style="font-size:24px;margin-bottom:10px; color:#CCC;"></i><div>点击上传附件</div></div>`;
+                        else if (f.type === 'select') {
+                            const opts = (f.options || "").split(',').map(o => `<option>${o.trim()}</option>`).join('');
+                            formContent += `<div class="select-wrapper"><select ${(isHistory||process.status==='rejected')?'disabled':''}>${opts}</select></div>`;
+                        } else if (f.type === 'radio') {
+                            const opts = (f.options || "").split(',').map(o => `<label class="radio-item"><input type="radio" name="r_${f.id}" ${(isHistory||process.status==='rejected')?'disabled':''}> ${o.trim()}</label>`).join('');
+                            formContent += `<div class="radio-group">${opts}</div>`;
+                        }
+                        formContent += `</div></div>`;
+                    });
+                    formContent += `</div>`;
+                }
+            }
+
+            html += `<div class="card"><div class="collapse-header" onclick="toggleCard(this)"><div class="collapse-title">${formTitle}</div><i class="fas fa-chevron-up collapse-icon"></i></div><div class="collapse-content">${formContent}</div></div>`;
+            container.innerHTML = html;
+        }
+
+        function getLegacyFormContent(stepIndex, stepData, isHistory) {
+            if (stepIndex === 0) {
+                return `
+                    <div class="form-box">
+                        <div class="form-row"><div class="form-label required">申请简介</div><div class="form-input-container"><input type="text" class="input-field" placeholder="不超过 20 个字" value="${stepData.desc || ''}" ${isHistory ? 'disabled' : ''}></div></div>
+                        <div class="form-row"><div class="form-label required">文学描述</div><div class="form-input-container"><textarea class="input-field" placeholder="文学描述角色或者一句话的角色背景" ${isHistory ? 'disabled' : ''}>${stepData.note || ''}</textarea></div></div>
+                        <div class="form-row"><div class="form-label required">角色性别</div><div class="form-input-container"><div class="radio-group"><label class="radio-item"><input type="radio" name="gender" checked ${isHistory ? 'disabled' : ''}> 男性</label><label class="radio-item"><input type="radio" name="gender" ${isHistory ? 'disabled' : ''}> 女性</label><label class="radio-item"><input type="radio" name="gender" ${isHistory ? 'disabled' : ''}> 中性</label></div></div></div>
+                        <div class="form-row split">
+                            <div class="split-half"><div class="form-label required">所属阵营</div><div class="form-input-container"><div class="select-wrapper"><select ${isHistory ? 'disabled' : ''}><option>请选择阵营</option><option>Ally</option><option>Cin</option><option>Enemy</option><option>Ambient</option></select></div><div class="helper-text">小字描述，什么体型解决什么问题？</div></div></div>
+                            <div class="split-half"><div class="form-label required">期望体型</div><div class="form-input-container"><div class="select-wrapper"><select ${isHistory ? 'disabled' : ''}><option>请选择体型</option><option>纤细</option><option>标准</option><option>强壮</option><option>魁梧</option></select></div><div class="helper-text">小字描述，什么体型解决什么问题？</div></div></div>
+                        </div>
+                    </div>`;
+            } else if (stepIndex === 1) {
+                return `
+                    <div class="form-box">
+                        <div class="form-row">
+                            <div class="form-input-container" style="flex-direction: row; gap: 24px;">
+                                <div class="big-option-group">
+                                    <label class="big-option-label selected" onclick="selectOption(this)"><input type="radio" name="design_type" value="new" checked ${isHistory ? 'disabled' : ''}><div style="font-size:16px;">新增角色设计</div></label>
+                                    <label class="big-option-label" onclick="selectOption(this)"><input type="radio" name="design_type" value="reuse" ${isHistory ? 'disabled' : ''}><div style="font-size:16px;">复用现有设计</div></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="reuse-input" class="form-row" style="display:none;"><div class="form-label required">引用链接</div><div class="form-input-container"><input type="text" class="input-field" placeholder="请输入已有角色链接..." ${isHistory ? 'disabled' : ''}></div></div>
+                    </div>`;
+            } else if (stepIndex === 2) {
+                return `
+                    <div class="form-box">
+                        <div class="form-row split"><div class="split-half"><div class="form-label required">角色名字</div><div class="form-input-container"><input type="text" class="input-field" placeholder="请输入中文名" ${isHistory ? 'disabled' : ''}></div></div><div class="split-half"><div class="form-label required">英文名</div><div class="form-input-container"><input type="text" class="input-field" placeholder="请输入英文名" ${isHistory ? 'disabled' : ''}></div></div></div>
+                        <div class="form-row"><div class="form-label required">角色性别</div><div class="form-input-container"><div class="radio-group"><label class="radio-item"><input type="radio" name="gender_final" checked ${isHistory ? 'disabled' : ''}> 男性</label><label class="radio-item"><input type="radio" name="gender_final" ${isHistory ? 'disabled' : ''}> 女性</label><label class="radio-item"><input type="radio" name="gender_final" ${isHistory ? 'disabled' : ''}> 中性</label></div></div></div>
+                        <div class="form-row split"><div class="split-half"><div class="form-label required">所属势力</div><div class="form-input-container"><div class="select-wrapper"><select ${isHistory ? 'disabled' : ''}><option>Ally</option><option>Cin</option><option>Enemy</option><option>Ambient</option></select></div></div></div><div class="split-half"><div class="form-label required">期待体型</div><div class="form-input-container"><div class="select-wrapper"><select ${isHistory ? 'disabled' : ''}><option>标准</option><option>纤细</option><option>强壮</option><option>魁梧</option></select></div></div></div></div>
+                    </div>`;
+            } else if (stepIndex === 3) {
+                return `
+                    <div class="form-box">
+                        <div class="form-row"><div class="form-label">设计稿上传</div><div class="form-input-container"><div class="upload-box"><i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 12px; color:#CCC;"></i><div>点击上传图片文件</div></div></div></div>
+                        <div class="form-row"><div class="form-label">归档链接</div><div class="form-input-container"><input type="text" class="input-field" placeholder="请输入最终原画网盘或SVN链接" ${isHistory ? 'disabled' : ''}></div></div>
+                    </div>`;
+            } else if (stepIndex === 4) {
+                return `
+                    <div class="form-box">
+                        <div class="form-row"><div class="form-label">模型文件</div><div class="form-input-container"><div class="upload-box"><i class="fas fa-cube" style="font-size: 24px; margin-bottom: 12px; color:#CCC;"></i><div>点击上传模型拆分图或压缩包</div></div></div></div>
+                        <div class="form-row"><div class="form-label">库地址</div><div class="form-input-container"><input type="text" class="input-field" placeholder="请输入模型文件库链接" ${isHistory ? 'disabled' : ''}></div></div>
+                    </div>`;
+            }
+            return '';
+        }
+
+        function getDynamicReviewHTML(template, allData, targetStepIndex) {
+            let content = '';
+            if (template.isLegacy) {
+                const data = allData[targetStepIndex] || {};
+                if (targetStepIndex === 0) {
+                    content = `<div class="form-row"><div class="form-label">申请简介</div><div class="form-input-container">${data.desc||'暂无'}</div></div><div class="form-row"><div class="form-label">文学描述</div><div class="form-input-container">${data.note||'暂无'}</div></div><div class="form-row split"><div class="split-half"><div class="form-label">角色性别</div><div class="form-input-container">${data.gender||'暂无'}</div></div><div class="split-half"><div class="form-label">所属阵营</div><div class="form-input-container">${data.camp||'暂无'}</div></div></div><div class="form-row split"><div class="split-half"><div class="form-label">期望体型</div><div class="form-input-container">${data.body||'暂无'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
+                } else if (targetStepIndex === 1) {
+                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">设计方案</div><div class="form-input-container">${data.design_type==='reuse'?'复用现有设计':'新增角色设计'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
+                } else if (targetStepIndex === 2) {
+                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">中文名</div><div class="form-input-container">${data.name_cn||'暂无'}</div></div><div class="split-half"><div class="form-label">英文名</div><div class="form-input-container">${data.name_en||'暂无'}</div></div></div>`;
+                } else if (targetStepIndex === 3) {
+                    content = `<div class="form-row"><div class="form-label">原画链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
+                } else if (targetStepIndex === 4) {
+                    content = `<div class="form-row"><div class="form-label">模型链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
+                }
+            } else {
+                const fields = template.steps[targetStepIndex].fields || [];
+                if (fields.length === 0) content = `<div class="form-row"><div class="form-label">状态</div><div class="form-input-container">已审批通过</div></div>`;
+                else { fields.forEach(f => { content += `<div class="form-row"><div class="form-label">${f.label}</div><div class="form-input-container" style="color:#666;">已录入归档信息</div></div>`; }); }
+            }
+
+            return `<div class="card"><div class="collapse-header" onclick="toggleCard(this)"><div class="collapse-title">${template.steps[targetStepIndex].name} (历史记录)</div><i class="fas fa-chevron-up collapse-icon"></i></div><div class="collapse-content"><div class="form-box" style="margin-bottom:0; background:#FDFDFD;">${content}</div></div></div>`;
+        }
+
+        function selectOption(label) {
+            if (viewingHistoryMode) return;
+            const group = label.parentElement; group.querySelectorAll('.big-option-label').forEach(l => l.classList.remove('selected')); label.classList.add('selected');
+            const input = label.querySelector('input'); input.checked = true;
+            document.getElementById('reuse-input').style.display = (input.value === 'reuse') ? 'flex' : 'none';
+        }
+
+        function viewStepHistory(stepIndex) {
+            const process = processes.find(p => p.id === activeProcessId); if (stepIndex > process.currentStep) return;
+            viewingHistoryMode = (stepIndex !== process.currentStep || process.status === 'archived' || process.status === 'rejected'); 
+            renderStepContent(stepIndex, viewingHistoryMode);
+            const items = document.querySelectorAll('.step-item'); items.forEach(el => el.style.opacity = '0.5'); document.getElementById(`step-${stepIndex}`).style.opacity = '1';
+        }
+
+        // ================= 各类型按钮处理逻辑 =================
+        function submitStep() {
+            const process = processes.find(p => p.id === activeProcessId); 
+            const template = processTemplates.find(t => t.id === process.templateId); 
+            const maxStep = template.steps.length;
+            
+            if (process.currentStep < maxStep - 1) { 
+                process.currentStep++; 
+                alert("内容提交成功，已流转至下一节点。"); 
+                showListPage(); 
+            } else if (process.currentStep === maxStep - 1) { 
+                process.currentStep = maxStep; 
+                process.status = 'archived'; 
+                alert("最终节点内容提交成功，流程已彻底归档。"); 
+                showListPage(); 
+            }
+        }
+
+        function approveStep() {
+            const process = processes.find(p => p.id === activeProcessId); 
+            process.currentStep++; 
+            alert("审核通过！已自动流转至下一阶段节点。"); 
+            showListPage(); 
+        }
+
+        function rejectStep() {
+            const process = processes.find(p => p.id === activeProcessId); 
+            process.status = 'rejected'; 
+            alert("已拒绝该申请，该流程已终止。"); 
+            showListPage(); 
+        }
+
+        function toggleCard(header) { const content = header.nextElementSibling; const icon = header.querySelector('.collapse-icon'); content.classList.toggle('collapsed'); icon.classList.toggle('rotate-180'); }
+        function editTitle() { const titleSpan = document.getElementById('page-title-text'); const newTitle = prompt("编辑标题", titleSpan.innerText); if (newTitle) { titleSpan.innerText = newTitle; const process = processes.find(p => p.id === activeProcessId); if (process) process.title = newTitle; } }
+
+        // Builder Logic 
+        function showTemplateBuilder() { document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active')); document.getElementById('page-template-create').classList.add('active'); draftTemplate = { name: "", description: "", steps: [ { id: Date.now(), name: "发起节点", operator: "当前用户", fields: [] } ]}; document.getElementById('builder-template-name').value = ''; document.getElementById('builder-template-desc').value = ''; renderBuilderSteps(); }
+        function renderBuilderSteps() {
+            const container = document.getElementById('builder-steps-container'); container.innerHTML = '';
+            draftTemplate.steps.forEach((step, stepIndex) => {
+                let fieldsHtml = '';
+                step.fields.forEach((field, fieldIndex) => {
+                    const isChoice = field.type === 'select' || field.type === 'radio';
+                    fieldsHtml += `
+                        <div class="builder-field-item"><i class="fas fa-times btn-remove-field" onclick="builderRemoveField(${stepIndex}, ${fieldIndex})"></i>
+                            <div class="field-row-inline">
+                                <div><div style="font-size:12px;color:#666;margin-bottom:6px;">表单字段标题</div><input type="text" class="input-field" value="${field.label}" onchange="builderUpdateField(${stepIndex}, ${fieldIndex}, 'label', this.value)"></div>
+                                <div><div style="font-size:12px;color:#666;margin-bottom:6px;">组件类型</div><div class="select-wrapper"><select onchange="builderUpdateFieldType(${stepIndex}, ${fieldIndex}, this.value)"><option value="text" ${field.type==='text'?'selected':''}>单行文本</option><option value="textarea" ${field.type==='textarea'?'selected':''}>多行文本</option><option value="upload" ${field.type==='upload'?'selected':''}>文件上传</option><option value="select" ${field.type==='select'?'selected':''}>下拉选择框</option><option value="radio" ${field.type==='radio'?'selected':''}>单选按钮组</option></select></div></div>
+                            </div>
+                            ${isChoice ? `<div style="margin-top:12px;"><div style="font-size:12px;color:#666;margin-bottom:6px;">选项配置 (以逗号分隔)</div><input type="text" class="input-field" value="${field.options||'选项1, 选项2'}" onchange="builderUpdateField(${stepIndex}, ${fieldIndex}, 'options', this.value)"></div>` : ''}
+                        </div>`;
+                });
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="builder-step-card">
+                        <div class="builder-step-header"><div class="builder-step-title">流程节点 ${stepIndex + 1}</div>${stepIndex > 0 ? `<div class="btn-remove-step" onclick="builderRemoveStep(${stepIndex})"><i class="fas fa-trash-alt"></i> 删除此节点</div>` : '<div style="color:#999;font-size:12px;">首节点为发起节点</div>'}</div>
+                        <div class="field-row-inline">
+                            <div><div style="font-size:12px;color:#666;margin-bottom:6px;">节点名称</div><input type="text" class="input-field" value="${step.name}" placeholder="如：主美审批、发票上传等" onchange="builderUpdateStep(${stepIndex}, 'name', this.value)"></div>
+                            <div><div style="font-size:12px;color:#666;margin-bottom:6px;">指定操作者</div><input type="text" class="input-field" value="${step.operator}" placeholder="如：张三，或保留为空" onchange="builderUpdateStep(${stepIndex}, 'operator', this.value)"></div>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #F0F0F0;">
+                            <div style="font-size:13px; font-weight:600; margin-bottom:12px; color:#333;">本节点需填写表单</div>
+                            ${fieldsHtml}
+                            <button class="builder-add-btn" onclick="builderAddField(${stepIndex})"><i class="fas fa-plus"></i> 添加新字段</button>
+                        </div>
+                    </div>`);
+            });
+        }
+        function builderAddStep() { draftTemplate.steps.push({ id: Date.now(), name: "新审批节点", operator: "待分配", fields: [] }); renderBuilderSteps(); }
+        function builderRemoveStep(index) { draftTemplate.steps.splice(index, 1); renderBuilderSteps(); }
+        function builderUpdateStep(index, key, value) { draftTemplate.steps[index][key] = value; }
+        function builderAddField(stepIndex) { draftTemplate.steps[stepIndex].fields.push({ id: Date.now(), type: 'text', label: "新文本字段" }); renderBuilderSteps(); }
+        function builderRemoveField(stepIndex, fieldIndex) { draftTemplate.steps[stepIndex].fields.splice(fieldIndex, 1); renderBuilderSteps(); }
+        function builderUpdateFieldType(stepIndex, fieldIndex, newType) { draftTemplate.steps[stepIndex].fields[fieldIndex].type = newType; if((newType === 'select' || newType === 'radio') && !draftTemplate.steps[stepIndex].fields[fieldIndex].options) { draftTemplate.steps[stepIndex].fields[fieldIndex].options = "选项A, 选项B"; } renderBuilderSteps(); }
+        function builderUpdateField(stepIndex, fieldIndex, key, value) { draftTemplate.steps[stepIndex].fields[fieldIndex][key] = value; }
+        function saveTemplate() { 
+            const tName = document.getElementById('builder-template-name').value.trim(); 
+            const tDesc = document.getElementById('builder-template-desc').value.trim();
+            if(!tName) { alert("模板名称不可为空"); return; } 
+            if(draftTemplate.steps.length === 0) { alert("至少需设置一个节点"); return; } 
+            const newTemplate = { id: processTemplates.length, name: tName, description: tDesc, isLegacy: false, steps: JSON.parse(JSON.stringify(draftTemplate.steps)) }; 
+            processTemplates.push(newTemplate); 
+            alert("自定义流程已成功发布并在列表顶端显示。"); 
+            showListPage(); 
+        }
+
+    </script>
+
+</body></html>
