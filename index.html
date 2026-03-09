@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0336)file:///Users/baomao/Desktop/%E6%B8%B8%E6%88%8FAI%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7/dj%20tacker%20%E5%89%A7%E6%9C%AC%E4%B8%93%E5%AE%B6/%E6%B5%81%E7%A8%8B%E5%88%9B%E4%BD%9C%E5%8E%9F%E5%9E%8B/dj%20tracker.%202026305%E7%BE%8E%E6%9C%AF%E6%B5%81%E7%A8%8B%E4%BA%A4%E4%BA%92%E5%8E%9F%E5%9E%8Bv7.0%E7%89%88%E6%9C%AChtml.html -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DJ Tracker - Process System V2.6 (Shortcut Fix)</title>
-    <link href="./DJ Tracker - Process System V2.6 (Shortcut Fix)_files/all.min.css" rel="stylesheet">
+    <title>DJ Tracker - Process System V2.8 (Archive UI Refined)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-orange: #FFA000;
@@ -77,7 +77,6 @@
         .card-left { flex: 1; }
         .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
         
-        /* 状态标签样式 */
         .status-badge { font-size: 12px; padding: 2px 8px; border-radius: 4px; border: 1px solid; }
         .status-badge.ongoing { color: #EF6C00; border-color: rgba(239, 108, 0, 0.3); background: #FFF9F5; }
         .status-badge.archived { color: #2E7D32; border-color: rgba(46, 125, 50, 0.3); background: #F6FCF6; }
@@ -247,17 +246,14 @@
                 </div>
                 <div class="template-section">
                     <div class="template-section-title">快速发起新流程</div>
-                    <div class="template-cards-wrapper" id="template-cards-container">
-                    <div class="template-card" onclick="createNewProcess(0)">
-                        <i class="fas fa-paint-brush"></i><div class="temp-name">美术原画制作</div><div style="font-size:12px; color:#999;">点击发起</div>
-                    </div></div>
+                    <div class="template-cards-wrapper" id="template-cards-container"></div>
                 </div>
                 <div class="tabs-main">
-                    <div class="tab-item active" onclick="switchTab(&#39;pending&#39;, this)">待处理</div>
-                    <div class="tab-item" onclick="switchTab(&#39;processed&#39;, this)">已处理</div>
-                    <div class="tab-item" onclick="switchTab(&#39;initiated&#39;, this)">已发起</div>
+                    <div class="tab-item active" onclick="switchTab('pending', this)">待处理</div>
+                    <div class="tab-item" onclick="switchTab('processed', this)">已处理</div>
+                    <div class="tab-item" onclick="switchTab('initiated', this)">已发起</div>
                 </div>
-                <div class="filter-tags" id="filter-tags-display"><div class="filter-tag active">进行中 (1)</div></div>
+                <div class="filter-tags" id="filter-tags-display"></div>
             </div>
             <div class="search-bar-wrapper">
                 <div class="search-bar-inner">
@@ -265,19 +261,7 @@
                     <input type="text" class="search-input" placeholder="请输入流程标题、流程编号">
                 </div>
             </div>
-            <div id="process-list-container">
-                    <div class="process-card" onclick="openProcess(1)">
-                        <div class="card-left">
-                            <div class="card-title">美术流程-文韬-2026-03-02 <span class="status-badge ongoing">进行中</span></div>
-                            <div class="card-info-grid">
-                                <div><span class="info-label">当前节点:</span> 主美确认需求</div>
-                                <div><span class="info-label">操作者:</span> 王某某</div>
-                                <div><span class="info-label">流程类型:</span> 美术原画制作</div>
-                                <div><span class="info-label">创建时间:</span> 2026-03-02 11:56</div>
-                            </div>
-                        </div>
-                        <div class="card-right"><div class="arrow-box"><i class="fas fa-chevron-right"></i></div></div>
-                    </div></div>
+            <div id="process-list-container"></div>
         </div>
 
         <div id="page-detail" class="page-container">
@@ -540,6 +524,35 @@
                 ${rowsHTML}</div>`;
         }
 
+        // ================= 拆分内部数据渲染以支持单块整合 =================
+        function getRawReviewContentHTML(template, allData, targetStepIndex) {
+            let content = '';
+            if (template.isLegacy) {
+                const data = allData[targetStepIndex] || {};
+                if (targetStepIndex === 0) {
+                    content = `<div class="form-row"><div class="form-label">申请简介</div><div class="form-input-container">${data.desc||'暂无'}</div></div><div class="form-row"><div class="form-label">文学描述</div><div class="form-input-container">${data.note||'暂无'}</div></div><div class="form-row split"><div class="split-half"><div class="form-label">角色性别</div><div class="form-input-container">${data.gender||'暂无'}</div></div><div class="split-half"><div class="form-label">所属阵营</div><div class="form-input-container">${data.camp||'暂无'}</div></div></div><div class="form-row split"><div class="split-half"><div class="form-label">期望体型</div><div class="form-input-container">${data.body||'暂无'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
+                } else if (targetStepIndex === 1) {
+                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">设计方案</div><div class="form-input-container">${data.design_type==='reuse'?'复用现有设计':'新增角色设计'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
+                } else if (targetStepIndex === 2) {
+                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">中文名</div><div class="form-input-container">${data.name_cn||'暂无'}</div></div><div class="split-half"><div class="form-label">英文名</div><div class="form-input-container">${data.name_en||'暂无'}</div></div></div>`;
+                } else if (targetStepIndex === 3) {
+                    content = `<div class="form-row"><div class="form-label">原画链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
+                } else if (targetStepIndex === 4) {
+                    content = `<div class="form-row"><div class="form-label">模型链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
+                }
+            } else {
+                const fields = template.steps[targetStepIndex].fields || [];
+                if (fields.length === 0) content = `<div class="form-row"><div class="form-label">状态</div><div class="form-input-container">已审批通过</div></div>`;
+                else { fields.forEach(f => { content += `<div class="form-row"><div class="form-label">${f.label}</div><div class="form-input-container" style="color:#666;">已录入归档信息</div></div>`; }); }
+            }
+            return content;
+        }
+
+        function getDynamicReviewHTML(template, allData, targetStepIndex) {
+            const content = getRawReviewContentHTML(template, allData, targetStepIndex);
+            return `<div class="card"><div class="collapse-header" onclick="toggleCard(this)"><div class="collapse-title">${template.steps[targetStepIndex].name} (阶段信息)</div><i class="fas fa-chevron-up collapse-icon"></i></div><div class="collapse-content"><div class="form-box" style="margin-bottom:0; background:#FDFDFD;">${content}</div></div></div>`;
+        }
+
         function renderStepContent(stepIndex, isHistory = false) {
             const container = document.getElementById('dynamic-content'); 
             const actions = document.getElementById('detail-actions'); 
@@ -550,7 +563,7 @@
             const stepData = process.data[stepIndex] || {}; 
             const isArchiveStep = stepIndex === template.steps.length;
 
-            if (isArchiveStep || isHistory || process.status === 'rejected') { 
+            if (isArchiveStep || isHistory) { 
                 actions.style.display = 'none'; globalNote.style.display = 'none'; 
             } else { 
                 actions.style.display = 'flex'; globalNote.style.display = 'block'; globalNote.querySelector('textarea').value = ''; 
@@ -569,16 +582,39 @@
             }
 
             let html = '';
+
+            // --- 核心修复：归档阶段整块展示（不再分多张卡片） ---
             if (isArchiveStep) {
                 html = `<div style="background:#E6F7E9;color:#2E7D32;padding:20px;text-align:center;border-radius:8px;margin-bottom:20px;font-weight:bold;"><i class="fas fa-check-circle"></i> 流程已彻底归档完成</div>`;
-                html += getDynamicReviewHTML(template, process.data, stepIndex - 1); container.innerHTML = html; return;
+                
+                let combinedContent = '';
+                for (let i = 0; i < template.steps.length; i++) {
+                    let stepTitle = template.steps[i].name;
+                    let stepContent = getRawReviewContentHTML(template, process.data, i);
+                    
+                    combinedContent += `
+                        <div style="margin-bottom: 24px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 12px; display: flex; align-items: center; position: relative; padding-left: 12px;">
+                                <div style="position: absolute; left: 0; top: 2px; bottom: 2px; width: 3px; background-color: var(--primary-teal); border-radius: 2px;"></div>
+                                ${stepTitle} <span style="color:#999; font-size:14px; font-weight:normal; margin-left:8px;">(阶段信息)</span>
+                            </div>
+                            <div class="form-box" style="margin-bottom: 0; background: #FDFDFD;">
+                                ${stepContent}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `<div class="card" style="padding-bottom: 4px;">${combinedContent}</div>`;
+                container.innerHTML = html; 
+                return;
             }
 
             if (stepIndex > 0) { html += getDynamicReviewHTML(template, process.data, stepIndex - 1); }
 
             let formTitle = template.steps[stepIndex].name; let formContent = "";
 
-            if (template.isLegacy) { formContent = getLegacyFormContent(stepIndex, stepData, isHistory || process.status === 'rejected'); } 
+            if (template.isLegacy) { formContent = getLegacyFormContent(stepIndex, stepData, isHistory); } 
             else {
                 const fields = template.steps[stepIndex].fields || [];
                 if (fields.length === 0) { formContent = `<div style="color:#999; text-align:center; padding: 30px;">本节点仅需审批，无特定字段填写要求。</div>`; } 
@@ -586,14 +622,14 @@
                     formContent += `<div class="form-box">`;
                     fields.forEach(f => {
                         formContent += `<div class="form-row"><div class="form-label">${f.label}</div><div class="form-input-container">`;
-                        if (f.type === 'text') formContent += `<input type="text" class="input-field" placeholder="请输入..." ${(isHistory||process.status==='rejected')?'disabled':''}>`;
-                        else if (f.type === 'textarea') formContent += `<textarea class="input-field" placeholder="请输入..." ${(isHistory||process.status==='rejected')?'disabled':''}></textarea>`;
+                        if (f.type === 'text') formContent += `<input type="text" class="input-field" placeholder="请输入..." ${isHistory?'disabled':''}>`;
+                        else if (f.type === 'textarea') formContent += `<textarea class="input-field" placeholder="请输入..." ${isHistory?'disabled':''}></textarea>`;
                         else if (f.type === 'upload') formContent += `<div class="upload-box"><i class="fas fa-cloud-upload-alt" style="font-size:24px;margin-bottom:10px; color:#CCC;"></i><div>点击上传附件</div></div>`;
                         else if (f.type === 'select') {
                             const opts = (f.options || "").split(',').map(o => `<option>${o.trim()}</option>`).join('');
-                            formContent += `<div class="select-wrapper"><select ${(isHistory||process.status==='rejected')?'disabled':''}>${opts}</select></div>`;
+                            formContent += `<div class="select-wrapper"><select ${isHistory?'disabled':''}>${opts}</select></div>`;
                         } else if (f.type === 'radio') {
-                            const opts = (f.options || "").split(',').map(o => `<label class="radio-item"><input type="radio" name="r_${f.id}" ${(isHistory||process.status==='rejected')?'disabled':''}> ${o.trim()}</label>`).join('');
+                            const opts = (f.options || "").split(',').map(o => `<label class="radio-item"><input type="radio" name="r_${f.id}" ${isHistory?'disabled':''}> ${o.trim()}</label>`).join('');
                             formContent += `<div class="radio-group">${opts}</div>`;
                         }
                         formContent += `</div></div>`;
@@ -654,30 +690,6 @@
             return '';
         }
 
-        function getDynamicReviewHTML(template, allData, targetStepIndex) {
-            let content = '';
-            if (template.isLegacy) {
-                const data = allData[targetStepIndex] || {};
-                if (targetStepIndex === 0) {
-                    content = `<div class="form-row"><div class="form-label">申请简介</div><div class="form-input-container">${data.desc||'暂无'}</div></div><div class="form-row"><div class="form-label">文学描述</div><div class="form-input-container">${data.note||'暂无'}</div></div><div class="form-row split"><div class="split-half"><div class="form-label">角色性别</div><div class="form-input-container">${data.gender||'暂无'}</div></div><div class="split-half"><div class="form-label">所属阵营</div><div class="form-input-container">${data.camp||'暂无'}</div></div></div><div class="form-row split"><div class="split-half"><div class="form-label">期望体型</div><div class="form-input-container">${data.body||'暂无'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
-                } else if (targetStepIndex === 1) {
-                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">设计方案</div><div class="form-input-container">${data.design_type==='reuse'?'复用现有设计':'新增角色设计'}</div></div><div class="split-half"><div class="form-label">备注</div><div class="form-input-container">${data.remark||'无'}</div></div></div>`;
-                } else if (targetStepIndex === 2) {
-                    content = `<div class="form-row split"><div class="split-half"><div class="form-label">中文名</div><div class="form-input-container">${data.name_cn||'暂无'}</div></div><div class="split-half"><div class="form-label">英文名</div><div class="form-input-container">${data.name_en||'暂无'}</div></div></div>`;
-                } else if (targetStepIndex === 3) {
-                    content = `<div class="form-row"><div class="form-label">原画链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
-                } else if (targetStepIndex === 4) {
-                    content = `<div class="form-row"><div class="form-label">模型链接</div><div class="form-input-container"><a href="#" style="color:var(--primary-teal);">${data.link||'暂无链接'}</a></div></div>`;
-                }
-            } else {
-                const fields = template.steps[targetStepIndex].fields || [];
-                if (fields.length === 0) content = `<div class="form-row"><div class="form-label">状态</div><div class="form-input-container">已审批通过</div></div>`;
-                else { fields.forEach(f => { content += `<div class="form-row"><div class="form-label">${f.label}</div><div class="form-input-container" style="color:#666;">已录入归档信息</div></div>`; }); }
-            }
-
-            return `<div class="card"><div class="collapse-header" onclick="toggleCard(this)"><div class="collapse-title">${template.steps[targetStepIndex].name} (历史记录)</div><i class="fas fa-chevron-up collapse-icon"></i></div><div class="collapse-content"><div class="form-box" style="margin-bottom:0; background:#FDFDFD;">${content}</div></div></div>`;
-        }
-
         function selectOption(label) {
             if (viewingHistoryMode) return;
             const group = label.parentElement; group.querySelectorAll('.big-option-label').forEach(l => l.classList.remove('selected')); label.classList.add('selected');
@@ -687,7 +699,7 @@
 
         function viewStepHistory(stepIndex) {
             const process = processes.find(p => p.id === activeProcessId); if (stepIndex > process.currentStep) return;
-            viewingHistoryMode = (stepIndex !== process.currentStep || process.status === 'archived' || process.status === 'rejected'); 
+            viewingHistoryMode = (stepIndex !== process.currentStep || process.status === 'archived'); 
             renderStepContent(stepIndex, viewingHistoryMode);
             const items = document.querySelectorAll('.step-item'); items.forEach(el => el.style.opacity = '0.5'); document.getElementById(`step-${stepIndex}`).style.opacity = '1';
         }
@@ -700,6 +712,7 @@
             
             if (process.currentStep < maxStep - 1) { 
                 process.currentStep++; 
+                process.status = 'ongoing';
                 alert("内容提交成功，已流转至下一节点。"); 
                 showListPage(); 
             } else if (process.currentStep === maxStep - 1) { 
@@ -713,6 +726,7 @@
         function approveStep() {
             const process = processes.find(p => p.id === activeProcessId); 
             process.currentStep++; 
+            process.status = 'ongoing';
             alert("审核通过！已自动流转至下一阶段节点。"); 
             showListPage(); 
         }
@@ -720,7 +734,7 @@
         function rejectStep() {
             const process = processes.find(p => p.id === activeProcessId); 
             process.status = 'rejected'; 
-            alert("已拒绝该申请，该流程已终止。"); 
+            alert("已拒绝该申请，流程将退回列表页面。您随时可以再次进入修改并重新审核。"); 
             showListPage(); 
         }
 
@@ -778,5 +792,5 @@
         }
 
     </script>
-
-</body></html>
+</body>
+</html>
